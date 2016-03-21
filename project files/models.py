@@ -87,7 +87,7 @@ class NewGameForm(messages.Message):
 
 class MakeMoveForm(messages.Message):
     """Used to make a move in an existing game"""
-    guess = messages.IntegerField(1, required=True)
+    guess = messages.StringField(1, required=True)
 
 
 class ScoreForm(messages.Message):

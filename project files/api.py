@@ -90,15 +90,22 @@ class GuessANumberApi(remote.Service):
         if game.game_over:
             return game.to_form('Game already over!')
 
-        game.attempts_remaining -= 1
+        logging.info(len(request.guess))
+
+        # these are no longer the win conditions
+        '''
         if request.guess == game.target:
             game.end_game(True)
             return game.to_form('You win!')
+        '''
 
-        if request.guess < game.target:
-            msg = 'Too low!'
+        if len(request.guess) != 1:
+            msg = 'You cannot guess more than one letter at a time!'
+        elif request.guess in game.target:
+            msg = 'Correct! Guess another letter.'
         else:
-            msg = 'Too high!'
+            msg = 'Incorrect! That letter is not in the word.'
+            game.attempts_remaining -= 1
 
         if game.attempts_remaining < 1:
             game.end_game(False)

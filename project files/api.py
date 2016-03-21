@@ -26,7 +26,7 @@ USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
 
 MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
-@endpoints.api(name='guess_a_number', version='v1')
+@endpoints.api(name='hangman', version='v1')
 class GuessANumberApi(remote.Service):
     """Game API"""
     @endpoints.method(request_message=USER_REQUEST,
@@ -56,17 +56,15 @@ class GuessANumberApi(remote.Service):
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
         try:
-            game = Game.new_game(user.key, request.min,
-                                 request.max, request.attempts)
+            game = Game.new_game(user.key, request.target, request.attempts)
         except ValueError:
-            raise endpoints.BadRequestException('Maximum must be greater '
-                                                'than minimum!')
+            raise endpoints.BadRequestException('Attempts must be 6, 8, or 12!')
 
         # Use a task queue to update the average attempts remaining.
         # This operation is not needed to complete the creation of a new game
         # so it is performed out of sequence.
         taskqueue.add(url='/tasks/cache_average_attempts')
-        return game.to_form('Good luck playing Guess a Number!')
+        return game.to_form('Good luck playing Hangman!')
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,

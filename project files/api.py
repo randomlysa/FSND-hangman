@@ -90,17 +90,22 @@ class GuessANumberApi(remote.Service):
         if game.game_over:
             return game.to_form('Game already over!')
 
+        # make the guess lowercase, to be safe.
+        guess = lower(request.guess)
+        target = game.target
+        targetLower = lower(target)
+
         def reveal_word():
             # reveal the target word
-            logging.info(game.target)
+            logging.info(target)
             show_target = []
             logging.info(show_target)
             i = 0 # keep track of what letter we are on / to replace
-            for letter in game.target:
+            for letter in targetLower:
                 if letter in game.correct_guesses:
                     # if the letter of the word has been correctly guessed,
                     # append the letter to target_revealed
-                    logging.info("Replacing with -")
+                    logging.info("Replacing with _")
                     show_target.append(letter)
                     i += 1
                 else:
@@ -115,21 +120,22 @@ class GuessANumberApi(remote.Service):
 
 
 
-        if reveal_word() == game.target:
+        if reveal_word() == target:
             game.end_game(True)
             return game.to_form('You win!')
 
 
-        if len(request.guess) == 0:
+        if len(guess) == 0:
             msg = reveal_word()
-        elif len(request.guess) > 1:
+        elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
-        elif request.guess in game.correct_guesses:
+        elif guess in game.correct_guesses:
             msg = "You already correctly guessed this letter!"
-        elif request.guess in game.target:
-            msg = 'Correct! Guess another letter.'
+        elif guess in game.target:
+            msg = 'Correct! Guess another letter. '
+            msg += reveal_word()
             # save the correct guess so the target word can be revealed
-            game.correct_guesses.append(request.guess)
+            game.correct_guesses.append(guess)
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1

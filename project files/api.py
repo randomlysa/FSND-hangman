@@ -91,9 +91,9 @@ class GuessANumberApi(remote.Service):
             return game.to_form('Game already over!')
 
         # make the guess lowercase, to be safe.
-        guess = lower(request.guess)
+        guess = request.guess.lower()
         target = game.target
-        targetLower = lower(target)
+        targetLower = target.lower()
 
         def reveal_word():
             # reveal the target word

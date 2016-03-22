@@ -118,12 +118,9 @@ class GuessANumberApi(remote.Service):
             logging.info(show_target_string)
             return show_target_string
 
-
-
         if reveal_word() == target:
             game.end_game(True)
             return game.to_form('You win!')
-
 
         if len(guess) == 0:
             msg = reveal_word()
@@ -132,10 +129,10 @@ class GuessANumberApi(remote.Service):
         elif guess in game.correct_guesses:
             msg = "You already correctly guessed this letter!"
         elif guess in game.target:
-            msg = 'Correct! Guess another letter. '
-            msg += reveal_word()
             # save the correct guess so the target word can be revealed
             game.correct_guesses.append(guess)
+            msg = 'Correct! Guess another letter. '
+            msg += reveal_word()
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1

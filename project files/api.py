@@ -90,22 +90,51 @@ class GuessANumberApi(remote.Service):
         if game.game_over:
             return game.to_form('Game already over!')
 
-        logging.info(len(request.guess))
+        def reveal_word():
+            # reveal the target word after the guess has been logged
+            logging.info(game.target)
+            # replace any letter in target that is NOT in game.correct_guesses with a dash
+            show_target = []
+            logging.info(show_target)
+            i = 0 # keep track of what letter we are on / to replace
+            for letter in game.target:
+                if letter in game.correct_guesses:
+                    # if the letter of the word has been correctly guessed,
+                    # append the letter to target_revealed
+                    logging.info("Replacing with -")
+                    show_target.append(letter)
+                    i += 1
+                else:
+                    # otherwise append a dash '-'
+                    logging.info("Not replacing letter")
+                    show_target.append("-")
+                    i += 1
+            # convert show_target into a string
+            show_target_string = ''.join(x for x in show_target)
+            logging.info(show_target_string)
+            return show_target_string
 
-        # these are no longer the win conditions
-        '''
-        if request.guess == game.target:
+
+
+        if reveal_word() == game.target:
             game.end_game(True)
             return game.to_form('You win!')
-        '''
+        
 
-        if len(request.guess) != 1:
+        if len(request.guess) == 0:
+            msg = reveal_word()
+        elif len(request.guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
+        elif request.guess in game.correct_guesses:
+            msg = "You already correctly guessed this letter!"
         elif request.guess in game.target:
             msg = 'Correct! Guess another letter.'
+            # save the correct guess so the target word can be revealed
+            game.correct_guesses.append(request.guess)
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
+
 
         if game.attempts_remaining < 1:
             game.end_game(False)

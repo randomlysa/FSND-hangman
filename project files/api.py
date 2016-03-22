@@ -91,9 +91,8 @@ class GuessANumberApi(remote.Service):
             return game.to_form('Game already over!')
 
         def reveal_word():
-            # reveal the target word after the guess has been logged
+            # reveal the target word
             logging.info(game.target)
-            # replace any letter in target that is NOT in game.correct_guesses with a dash
             show_target = []
             logging.info(show_target)
             i = 0 # keep track of what letter we are on / to replace
@@ -105,9 +104,9 @@ class GuessANumberApi(remote.Service):
                     show_target.append(letter)
                     i += 1
                 else:
-                    # otherwise append a dash '-'
+                    # otherwise append an underscore '_'
                     logging.info("Not replacing letter")
-                    show_target.append("-")
+                    show_target.append("_")
                     i += 1
             # convert show_target into a string
             show_target_string = ''.join(x for x in show_target)
@@ -119,7 +118,7 @@ class GuessANumberApi(remote.Service):
         if reveal_word() == game.target:
             game.end_game(True)
             return game.to_form('You win!')
-        
+
 
         if len(request.guess) == 0:
             msg = reveal_word()

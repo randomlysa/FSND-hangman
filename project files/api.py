@@ -122,7 +122,10 @@ class GuessANumberApi(remote.Service):
             game.end_game(True)
             return game.to_form('You win!')
 
-        if len(guess) == 0:
+        if guess == targetLower:
+            game.end_game(True)
+            return game.to_form('You win!')
+        elif len(guess) == 0:
             msg = reveal_word()
         elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'

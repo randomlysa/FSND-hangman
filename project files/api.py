@@ -121,7 +121,9 @@ class GuessANumberApi(remote.Service):
         # allow solving
         if guess == targetLower:
             game.end_game(True)
-            return game.to_form('You win!')
+            return game.to_form(
+                        'You solved the puzzle! The correct word is: ' + target
+            )
         # show guessed parts of word if the guessed letter is empty
         elif len(guess) == 0:
             msg = reveal_word()
@@ -136,12 +138,13 @@ class GuessANumberApi(remote.Service):
             reveal_word_solve = reveal_word()
             if reveal_word_solve == target:
                 game.end_game(True)
-                return game.to_form('You win!')
+                return game.to_form('You win! The correct word is: ' + target)
             else:
                 msg = 'Correct! Guess another letter. '
                 msg += reveal_word()
         else:
-            msg = 'Incorrect! That letter is not in the word.'
+            msg = 'Incorrect! That letter is not in the word. '
+            msg += reveal_word()
             game.attempts_remaining -= 1
 
 

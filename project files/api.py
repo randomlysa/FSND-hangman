@@ -97,34 +97,32 @@ class GuessANumberApi(remote.Service):
 
         def reveal_word():
             # reveal the target word
-            logging.info(target)
+            # logging.info(target)
             show_target = []
-            logging.info(show_target)
+            # logging.info(show_target)
             i = 0 # keep track of what letter we are on / to replace
             for letter in targetLower:
                 if letter in game.correct_guesses:
                     # if the letter of the word has been correctly guessed,
                     # append the letter to target_revealed
-                    logging.info("Replacing with _")
+                    # logging.info("Replacing with _")
                     show_target.append(letter)
                     i += 1
                 else:
                     # otherwise append an underscore '_'
-                    logging.info("Not replacing letter")
+                    # logging.info("Not replacing letter")
                     show_target.append("_")
                     i += 1
             # convert show_target into a string
             show_target_string = ''.join(x for x in show_target)
-            logging.info(show_target_string)
+            # logging.info(show_target_string)
             return show_target_string
 
-        if reveal_word() == target:
-            game.end_game(True)
-            return game.to_form('You win!')
-
+        # allow solving
         if guess == targetLower:
             game.end_game(True)
             return game.to_form('You win!')
+        # show guessed parts of word if the guessed letter is empty
         elif len(guess) == 0:
             msg = reveal_word()
         elif len(guess) > 1:
@@ -134,8 +132,14 @@ class GuessANumberApi(remote.Service):
         elif guess in game.target:
             # save the correct guess so the target word can be revealed
             game.correct_guesses.append(guess)
-            msg = 'Correct! Guess another letter. '
-            msg += reveal_word()
+            # check if this letter completed the word
+            reveal_word_solve = reveal_word()
+            if reveal_word_solve == target:
+                game.end_game(True)
+                return game.to_form('You win!')
+            else:
+                msg = 'Correct! Guess another letter. '
+                msg += reveal_word()
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1

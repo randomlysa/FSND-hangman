@@ -16,7 +16,7 @@ class User(ndb.Model):
 
 class Game(ndb.Model):
     """Game object"""
-    target = ndb.StringProperty(required=True)
+    target = ndb.StringProperty()
     correct_guesses = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
     attempts_remaining = ndb.IntegerProperty(required=True, default=5)
@@ -24,13 +24,21 @@ class Game(ndb.Model):
     user = ndb.KeyProperty(required=True, kind='User')
 
     @classmethod
-    def new_game(cls, user, target, attempts):
+    def new_game(cls, user, attempts):
         """Creates and returns a new game"""
         valid_attempts_allowed = [6, 8, 12]
+
+        # pick a random word from a file
+        words_file = open('wordsEn.txt', 'r')
+        words_list = words_file.readlines()
+        max_lines =  len(words_list)
+        pick_line = random.randrange(0, max_lines)
+        word = words_list[pick_line].rstrip('\n')
+
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
         game = Game(user=user,
-                    target=target,
+                    target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
                     game_over=False)
@@ -83,8 +91,8 @@ class GameForm(messages.Message):
 class NewGameForm(messages.Message):
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
-    target = messages.StringField(2, required=True)
-    attempts = messages.IntegerField(3, default=5)
+    # target = messages.StringField(2)
+    attempts = messages.IntegerField(2, default=5)
 
 
 class MakeMoveForm(messages.Message):

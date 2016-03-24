@@ -2,7 +2,7 @@
 entities used by the Game. Because these classes are also regular Python
 classes they can include methods (such as 'to_form' and 'new_game')."""
 
-import random
+import random, logging
 from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
@@ -25,19 +25,42 @@ class Game(ndb.Model):
     user = ndb.KeyProperty(required=True, kind='User')
 
     @classmethod
-    def new_game(cls, user, attempts):
+    def new_game(cls, user, attempts, min_letters, max_letters):
         """Creates and returns a new game"""
         valid_attempts_allowed = [6, 8, 12]
-
+        logging.info(attempts)
         # pick a random word from a file
         words_file = open('wordsEn.txt', 'r')
-        words_list = words_file.readlines()
-        max_lines =  len(words_list)
-        pick_line = random.randrange(0, max_lines)
-        word = words_list[pick_line].rstrip('\n')
+        # words_list = words_file.readlines()
+        max_lines_all_words =  len(words_file.readlines())
+        # create a list of words that are the correct length
+
+        reading_line = 0
+        picked_words_list = []
+        while reading_line < max_lines_all_words:
+            # if word lenth is less than max letters and more than min letters
+            word = words_file.readline()
+            if len(word) < max_letters and len(word) > min_letters:
+                picked_words_list.append(word)
+                reading_line += 1
+            else:
+                reading_line += 1
+
+        # now we are working with a list of words that are the correct length
+        max_lines_picked_words = len(picked_words_list)
+        pick_line = random.randrange(0, max_lines_picked_words)
+        word = picked_words_list[pick_line].rstrip('\n')
+        x = 0
+        while x == 0:
+            if len(word) > max_letters or len(word) < min_letters:
+                word = words_list[pick_line].rstrip('\n')
+            else:
+                x = 1
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
+        if max_letters < min_letters:
+            raise ValueError('Maximum must be greater than minimum')
         game = Game(user=user,
                     target=word,
                     attempts_allowed=attempts,
@@ -96,6 +119,8 @@ class NewGameForm(messages.Message):
     user_name = messages.StringField(1, required=True)
     # target = messages.StringField(2)
     attempts = messages.IntegerField(2, default=5)
+    min_letters = messages.IntegerField(3)
+    max_letters = messages.IntegerField(4)
 
 
 class MakeMoveForm(messages.Message):

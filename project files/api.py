@@ -118,9 +118,13 @@ class GuessANumberApi(remote.Service):
             # logging.info(show_target_string)
             return show_target_string
 
+        # this should cover all the scenarios except when the guess is correct
+        game.correct_guesses = reveal_word()
+
         # allow solving
         if guess == targetLower:
             game.end_game(True)
+            game.correct_guesses = target
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
             )
@@ -138,15 +142,14 @@ class GuessANumberApi(remote.Service):
             reveal_word_solve = reveal_word()
             if reveal_word_solve == target:
                 game.end_game(True)
-                return game.to_form('You win! The correct word is: ' + target)
+                game.correct_guesses = reveal_word()
+                return game.to_form('You win!')
             else:
-                msg = 'Correct! Guess another letter. '
-                msg += reveal_word()
+                msg = 'Correct! Guess another letter.'
+                game.correct_guesses = reveal_word()
         else:
-            msg = 'Incorrect! That letter is not in the word. '
-            msg += reveal_word()
+            msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
-
 
         if game.attempts_remaining < 1:
             game.end_game(False)

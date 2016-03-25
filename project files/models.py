@@ -20,6 +20,7 @@ class Game(ndb.Model):
     correct_guesses = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
     correct_guesses = ndb.StringProperty()
+    all_guesses = ndb.StringProperty()
     attempts_remaining = ndb.IntegerProperty(required=True, default=5)
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')

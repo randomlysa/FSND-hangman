@@ -172,6 +172,12 @@ class GuessANumberApi(remote.Service):
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
 
+        # save msg and guess to game.all_guesses for get_game_history
+        if game.all_guesses == None:
+            game.all_guesses = ("['Guess: %s', 'Message %s']") % (guess, msg)
+        else:
+            game.all_guesses.append("'Guess: %s', 'Message %s'") % (guess, msg)
+
         if game.attempts_remaining < 1:
             game.end_game(False)
             return game.to_form(msg + ' Game over!')

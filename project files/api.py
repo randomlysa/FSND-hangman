@@ -90,7 +90,7 @@ class GuessANumberApi(remote.Service):
                       name='get_user_games',
                       http_method='GET')
     def get_user_games(self, request):
-        """Returns websafe keys of all unfinished games by the user---"""
+        """Returns websafe keys of all unfinished games by the user"""
         user_name = request.user_name
         user = User.query(User.name==user_name).get()
         games = Game.query(Game.user==user.key).fetch()
@@ -98,6 +98,28 @@ class GuessANumberApi(remote.Service):
         for game in games:
             gameKeys.append(game.key.urlsafe())
         return GameKeys(keys=[key for key in gameKeys])
+
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=StringMessage,
+                      path='cancel_game',
+                      name='cancel_game',
+                      http_method='GET')
+    def cancel_game(self, request):
+        """Cancel a non-completed game. ---"""
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+
+        if game.game_over != True and game.cancelled != True:
+            game.cancelled = True
+            game.put()
+            return StringMessage(message="Game canceled.")
+        elif game.game_over == True:
+            raise endpoints.BadRequestException("You cannot cancel a game that is over.")
+            return StringMessage(message="You cannot cancel a game that is over.")
+        elif game.cancelled == True:
+            raise endpoints.BadRequestException("This game is already canceled!")
+            return StringMessage(message="This game is already canceled!")
+        else:
+            return StringMessage(message="Something odd happened!")
 
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
@@ -149,12 +171,8 @@ class GuessANumberApi(remote.Service):
             # into a string
             show_target_string = ''.join(x for x in show_target)
             # set the revealed word in datastore
-            game.correct_guesses = show_target_string            
+            game.correct_guesses = show_target_string
             return show_target_string
-
-        # this should cover all the scenarios except when the guess is correct
-        # game.correct_guesses = reveal_word()
-        logging.info(game.correct_guesses)
 
         # allow solving
         if guess == targetLower:

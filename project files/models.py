@@ -22,6 +22,7 @@ class Game(ndb.Model):
     correct_guesses = ndb.StringProperty()
     all_guesses = ndb.StringProperty()
     attempts_remaining = ndb.IntegerProperty(required=True, default=5)
+    cancelled = ndb.BooleanProperty(required=True, default=False)
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
 
@@ -62,7 +63,6 @@ class Game(ndb.Model):
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
-                    # correct_guesses=correct_guesses,
                     game_over=False)
         game.put()
         return game

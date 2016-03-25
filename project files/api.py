@@ -56,7 +56,12 @@ class GuessANumberApi(remote.Service):
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
         try:
-            game = Game.new_game(user.key, request.attempts)
+            game = Game.new_game(
+                                    user.key,
+                                    request.attempts,
+                                    request.min_letters,
+                                    request.max_letters
+            )
         except ValueError:
             raise endpoints.BadRequestException('Attempts must be 6, 8, or 12!')
 

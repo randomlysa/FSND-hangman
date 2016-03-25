@@ -25,16 +25,28 @@ class Game(ndb.Model):
     user = ndb.KeyProperty(required=True, kind='User')
 
     @classmethod
-    def new_game(cls, user, attempts):
+    def new_game(cls, user, attempts, min_letters, max_letters):
         """Creates and returns a new game"""
         valid_attempts_allowed = [6, 8, 12]
 
-        # pick a random word from a file
+        # pick random word from file, with correct length
         words_file = open('wordsEn.txt', 'r')
-        words_list = words_file.readlines()
-        max_lines =  len(words_list)
-        pick_line = random.randrange(0, max_lines)
-        word = words_list[pick_line].rstrip('\n')
+        all_words = words_file.readlines()
+
+        # create a list of words that are the correct length
+        correct_length_words = []
+        for word in all_words:
+            # if word lenth is less than max letters and more than min letters
+            if len(word) <= max_letters + 1 and len(word) >= min_letters + 1:
+                correct_length_words.append(word)
+
+        # now we are working with a list of words that are the correct length
+        max_lines_correct_length_words = len(correct_length_words)
+        print "max_lines_picked_words" + str(max_lines_correct_length_words)
+        pick_line = random.randrange(0, max_lines_correct_length_words)
+        word = correct_length_words[pick_line].rstrip('\n')
+        # word = 'word'
+
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
@@ -95,7 +107,9 @@ class NewGameForm(messages.Message):
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
     # target = messages.StringField(2)
-    attempts = messages.IntegerField(2, default=5)
+    attempts = messages.IntegerField(2, default=8)
+    min_letters = messages.IntegerField(3, default=6)
+    max_letters = messages.IntegerField(4, default=12)
 
 
 class MakeMoveForm(messages.Message):

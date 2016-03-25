@@ -115,59 +115,72 @@ class GuessANumberApi(remote.Service):
         guess = request.guess.lower()
         target = game.target
         targetLower = target.lower()
+        if game.correct_guesses == None:
+            correct_guesses = ''
+        else:
+            correct_guesses = game.correct_guesses
 
-        def reveal_word():
-            # reveal the target word
+        def reveal_word(guess):
+            """
+                convert 'target' word into word with correctly guessed letters
+                and underscores for unguessed letters
+
+            """
             # logging.info(target)
             show_target = []
             # logging.info(show_target)
             i = 0 # keep track of what letter we are on / to replace
             for letter in targetLower:
-                if letter in game.correct_guesses:
-                    # if the letter of the word has been correctly guessed,
-                    # append the letter to target_revealed
-                    # logging.info("Replacing with _")
+                if letter == guess:
+                    # append currently correctly guessed letter
+                    # to target_revealed
+                    show_target.append(guess)
+                    i += 1
+                elif letter in correct_guesses:
+                    # append previously correctly guessed letter(s)
+                    # to target_revealed
                     show_target.append(letter)
                     i += 1
                 else:
                     # otherwise append an underscore '_'
-                    # logging.info("Not replacing letter")
                     show_target.append("_")
                     i += 1
-            # convert show_target into a string
+            # convert show_target (list with correct letters and underscores)
+            # into a string
             show_target_string = ''.join(x for x in show_target)
-            # logging.info(show_target_string)
+            # set the revealed word in datastore
+            game.correct_guesses = show_target_string            
             return show_target_string
 
         # this should cover all the scenarios except when the guess is correct
-        game.correct_guesses = reveal_word()
+        # game.correct_guesses = reveal_word()
+        logging.info(game.correct_guesses)
 
         # allow solving
         if guess == targetLower:
             game.end_game(True)
-            game.correct_guesses = target
+            correct_guesses = target
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
             )
-        # show guessed parts of word if the guessed letter is empty
         elif len(guess) == 0:
-            msg = reveal_word()
+            msg = "You didn't guess a latter!"
         elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
-        elif guess in game.correct_guesses:
+        elif guess in correct_guesses:
             msg = "You already correctly guessed this letter!"
         elif guess in game.target:
             # save the correct guess so the target word can be revealed
-            game.correct_guesses.append(guess)
+            game.correct_guesses = reveal_word(guess)
             # check if this letter completed the word
-            reveal_word_solve = reveal_word()
+            reveal_word_solve = game.correct_guesses
             if reveal_word_solve == target:
                 game.end_game(True)
-                game.correct_guesses = reveal_word()
+                # game.correct_guesses = reveal_word()
                 return game.to_form('You win!')
             else:
                 msg = 'Correct! Guess another letter.'
-                game.correct_guesses = reveal_word()
+                # game.correct_guesses = reveal_word()
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
@@ -176,7 +189,7 @@ class GuessANumberApi(remote.Service):
         if game.all_guesses == None:
             game.all_guesses = ("['Guess: %s', 'Message %s']") % (guess, msg)
         else:
-            game.all_guesses.append("'Guess: %s', 'Message %s'") % (guess, msg)
+            game.all_guesses += ("[]'Guess: %s', 'Message %s']") % (guess, msg)
 
         if game.attempts_remaining < 1:
             game.end_game(False)

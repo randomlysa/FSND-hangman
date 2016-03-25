@@ -42,14 +42,16 @@ class Game(ndb.Model):
 
         # now we are working with a list of words that are the correct length
         max_lines_correct_length_words = len(correct_length_words)
-        print "max_lines_picked_words" + str(max_lines_correct_length_words)
         pick_line = random.randrange(0, max_lines_correct_length_words)
         word = correct_length_words[pick_line].rstrip('\n')
-        # word = 'word'
-
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
+        if max_letters < min_letters:
+            raise ValueError(
+                            'Maximum letters must be greater \
+                            than minimum letters.'
+            )
         game = Game(user=user,
                     target=word,
                     attempts_allowed=attempts,

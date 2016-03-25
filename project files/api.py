@@ -11,8 +11,8 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 
 from models import User, Game, Score
-from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
-    ScoreForms
+from models import StringMessage, NewGameForm, GameForm, GameKeys, \
+    MakeMoveForm, ScoreForms
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -83,6 +83,22 @@ class GuessANumberApi(remote.Service):
             return game.to_form('Time to make a move!')
         else:
             raise endpoints.NotFoundException('Game not found!')
+
+    @endpoints.method(request_message=USER_REQUEST,
+                      response_message=GameKeys,
+                      path='get_user_games',
+                      name='get_user_games',
+                      http_method='GET')
+    def get_user_games(self, request):
+        """Returns websafe keys of all unfinished games by the user---"""
+        user_name = request.user_name
+        user = User.query(User.name==user_name).get()
+        games = Game.query(Game.user==user.key).fetch()
+        gameKeys = []
+        for game in games:
+            gameKeys.append(game.key.urlsafe())
+        return GameKeys(keys=[key for key in gameKeys])
+
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,

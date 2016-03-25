@@ -52,7 +52,8 @@ class Game(ndb.Model):
                             'Maximum letters must be greater \
                             than minimum letters.'
             )
-        game = Game(user=user,
+        game = Game(parent = user,
+                    user=user,
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
@@ -104,6 +105,9 @@ class GameForm(messages.Message):
     message = messages.StringField(6, required=True)
     user_name = messages.StringField(7, required=True)
 
+class GameKeys(messages.Message):
+    """Return keys of unfinished games per user."""
+    keys = messages.StringField(1, repeated=True)
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""

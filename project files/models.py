@@ -17,10 +17,9 @@ class User(ndb.Model):
 class Game(ndb.Model):
     """Game object"""
     target = ndb.StringProperty()
-    correct_guesses = ndb.StringProperty(repeated=True)
+    correct_letters = ndb.StringProperty(repeated=True)
+    all_letters = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
-    correct_guesses = ndb.StringProperty()
-    all_guesses = ndb.StringProperty()
     attempts_remaining = ndb.IntegerProperty(required=True, default=6)
     cancelled = ndb.BooleanProperty(required=True, default=False)
     game_over = ndb.BooleanProperty(required=True, default=False)
@@ -50,8 +49,7 @@ class Game(ndb.Model):
         word = correct_length_words[pick_line].rstrip('\n')
         # set correct guesses to be the same number of underscores as the words
         # otherwise the first letter guessed will cause an error because
-        # correct_guesses is None in datastore,but it is expected to be a string
-        correct_guesses = "_ " * len(word)
+        # correct_letters is None in datastore,but it is expected to be a string
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
@@ -65,7 +63,7 @@ class Game(ndb.Model):
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
-                    correct_guesses = correct_guesses,
+                    correct_letters = correct_letters,
                     game_over=False)
         game.put()
         return game
@@ -76,7 +74,7 @@ class Game(ndb.Model):
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
         form.attempts_remaining = self.attempts_remaining
-        form.correct_guesses = self.correct_guesses
+        form.correct_letters = self.correct_letters
         form.game_over = self.game_over
         form.message = message
         return form
@@ -132,11 +130,10 @@ class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)
     attempts_remaining = messages.IntegerField(2, required=True)
-    correct_guesses = messages.StringField(3)
-    correct_guesses = messages.StringField(4)
-    game_over = messages.BooleanField(5, required=True)
-    message = messages.StringField(6, required=True)
-    user_name = messages.StringField(7, required=True)
+    correct_letters = messages.StringField(3)
+    game_over = messages.BooleanField(4, required=True)
+    message = messages.StringField(5, required=True)
+    user_name = messages.StringField(6, required=True)
 
 class GameKeys(messages.Message):
     """Return keys of unfinished games per user."""

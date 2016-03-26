@@ -159,10 +159,10 @@ class GuessANumberApi(remote.Service):
         guess = request.guess.lower()
         target = game.target
         targetLower = target.lower()
-        if game.correct_guesses == None:
-            correct_guesses = ''
+        if game.correct_letters == None:
+            correct_letters = ''
         else:
-            correct_guesses = game.correct_guesses
+            correct_letters = game.correct_letters
 
         def reveal_word(guess=''):
             """
@@ -179,7 +179,7 @@ class GuessANumberApi(remote.Service):
                     # to target_revealed
                     show_target.append(guess)
                     i += 1
-                elif letter in correct_guesses:
+                elif letter in correct_letters:
                     # append previously correctly guessed letter(s)
                     # to target_revealed
                     show_target.append(letter)
@@ -198,7 +198,7 @@ class GuessANumberApi(remote.Service):
         # allow solving
         if guess == targetLower:
             game.end_game(True)
-            correct_guesses = target
+            correct_letters = target
             score.solved=True
             score.put()
             return game.to_form(
@@ -212,7 +212,7 @@ class GuessANumberApi(remote.Service):
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = 'You cannot guess more than one letter at a time!'
-        elif guess in correct_guesses:
+        elif guess in correct_letters:
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = "You already correctly guessed this letter!"
@@ -220,16 +220,16 @@ class GuessANumberApi(remote.Service):
             # save and log the correct guess so the target word can be revealed
             score.correct_guesses = correct_guesses + 1
             score.put()
-            game.correct_guesses = reveal_word(guess)
+            game.correct_letters = reveal_word(guess)
             # check if this letter completed the word
-            reveal_word_solve = game.correct_guesses
+            reveal_word_solve = game.correct_letters
             if reveal_word_solve == target:
                 game.end_game(True)
-                # game.correct_guesses = reveal_word()
+                # game.correct_letters = reveal_word()
                 return game.to_form('You win!')
             else:
                 msg = 'Correct! Guess another letter.'
-                # game.correct_guesses = reveal_word()
+                # game.correct_letters = reveal_word()
         else:
             score.incorrect_guesses = incorrect_guesses + 1
             score.put()

@@ -214,6 +214,8 @@ class GuessANumberApi(remote.Service):
             game.end_game(True)
             correct_letters = target
             score.solved=True
+            score.won=True
+            score.valid_for_high_score = True
             score.put()
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
@@ -239,7 +241,9 @@ class GuessANumberApi(remote.Service):
             reveal_word_solve = game.correct_letters
             if reveal_word_solve == target:
                 game.end_game(True)
-                # game.correct_letters = reveal_word()
+                score.won=True
+                score.valid_for_high_score = True
+                score.put()
                 return game.to_form('You win!')
             else:
                 msg = 'Correct! Guess another letter.'

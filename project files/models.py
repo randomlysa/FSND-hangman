@@ -51,7 +51,7 @@ class Game(ndb.Model):
         # set correct guesses to be the same number of underscores as the words
         # otherwise the first letter guessed will cause an error because
         # correct_guesses is None in datastore,but it is expected to be a string
-        # correct_guesses = "_" * len(word)
+        correct_guesses = "_ " * len(word)
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
@@ -65,6 +65,7 @@ class Game(ndb.Model):
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
+                    correct_guesses = correct_guesses,
                     game_over=False)
         game.put()
         return game

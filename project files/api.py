@@ -142,11 +142,10 @@ class GuessANumberApi(remote.Service):
         else:
             correct_guesses = game.correct_guesses
 
-        def reveal_word(guess):
+        def reveal_word(guess=''):
             """
                 convert 'target' word into word with correctly guessed letters
                 and underscores for unguessed letters
-
             """
             # logging.info(target)
             show_target = []
@@ -165,7 +164,7 @@ class GuessANumberApi(remote.Service):
                     i += 1
                 else:
                     # otherwise append an underscore '_'
-                    show_target.append("_")
+                    show_target.append(" _ ")
                     i += 1
             # convert show_target (list with correct letters and underscores)
             # into a string
@@ -182,7 +181,6 @@ class GuessANumberApi(remote.Service):
                         'You solved the puzzle! The correct word is: ' + target
             )
         elif len(guess) == 0:
-            msg = "You didn't guess a latter!"
         elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in correct_guesses:

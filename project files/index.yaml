@@ -14,3 +14,13 @@ indexes:
   properties:
   - name: game_over
   - name: user
+
+- kind: Score
+  properties:
+  - name: valid_for_high_score
+  - name: correct_guesses
+
+- kind: Score
+  properties:
+  - name: valid_for_high_score
+  - name: incorrect_guesses

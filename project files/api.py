@@ -297,7 +297,10 @@ class GuessANumberApi(remote.Service):
                       http_method='GET')
     def get_high_scores(self, request):
         """Return high scores"""
-        return ScoreForms(items=[score.to_form() for score in Score.query()])
+        high_scores = \
+                      Score.query(Score.valid_for_high_score==True)\
+                      .order(Score.incorrect_guesses)
+        return ScoreForms(items=[score.to_form() for score in high_scores])
 
     @endpoints.method(response_message=StringMessage,
                       path='games/average_attempts',

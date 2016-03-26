@@ -132,7 +132,14 @@ class GuessANumberApi(remote.Service):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key==game.user).get()
-
+        # convert attempts_remaining to a difficulty level
+        difficult = game.attempts_remaining
+        if difficult == 6:
+            set_difficulty = 'hard'
+        elif difficult == 8:
+            set_difficulty = 'medium'
+        elif difficult == 12:
+            set_difficulty = 'low'
         # set up scoring
         if Score.query(ancestor=game.key).get() == None:
             score = Score(
@@ -141,7 +148,10 @@ class GuessANumberApi(remote.Service):
                     date=date.today(),
                     won=False,
                     complete=False,
-                    total_guesses=0
+                    total_guesses=0,
+                    # this should be the same as attempts
+                    # the first time it is run
+                    difficulty=set_difficulty
             )
             score.put()
 
@@ -237,7 +247,7 @@ class GuessANumberApi(remote.Service):
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
         # end evaluating guesses
-        
+
         # save msg and guess to game.all_guesses for get_game_history
         if game.all_guesses == None:
             game.all_guesses = ("['Guess: %s', 'Message %s']") % (guess, msg)

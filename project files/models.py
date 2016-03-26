@@ -86,7 +86,8 @@ class Game(ndb.Model):
         the player lost."""
         self.game_over = True
         self.put()
-        # Add the game to the score 'board'
+        # Add the game to the score 'board' - this is now done every move
+        """
         score = Score(
                       user=self.user,
                       date=date.today(),
@@ -99,11 +100,12 @@ class Game(ndb.Model):
                       solved = self.solved
                       )
         score.put()
+        """
 
 
 class Score(ndb.Model):
     """Score object"""
-    user = ndb.KeyProperty(required=True, kind='User')
+    user_name = ndb.KeyProperty(required=True, kind='User')
     date = ndb.DateProperty(required=True)
     won = ndb.BooleanProperty(required=True)
     complete = ndb.BooleanProperty(required=True)
@@ -159,7 +161,7 @@ class ScoreForm(messages.Message):
     user_name = messages.StringField(1, required=True)
     date = messages.StringField(2, required=True)
     won = messages.BooleanField(3, required=True)
-    complete = messages.BooleanField(4, required=True)
+    complete = messages.BooleanField(4, required=True, default=False)
     total_guesses = messages.IntegerField(5, required=True)
     correct_guesses = messages.IntegerField(6)
     incorrect_guesses = messages.IntegerField(7)

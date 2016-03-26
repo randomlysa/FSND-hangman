@@ -6,6 +6,7 @@ primarily with communication to/from the API's users."""
 
 import logging
 import endpoints
+from datetime import date
 from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
@@ -130,6 +131,22 @@ class GuessANumberApi(remote.Service):
     def make_move(self, request):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        user = User.query(User.key==game.user).get()
+
+        # set up scoring
+        if Score.query(ancestor=game.key).get() == None:
+            score = Score(
+                    parent=game.key,
+                    user_name=user.key,
+                    date=date.today(),
+                    won=False,
+                    complete=False,
+                    total_guesses=0
+            )
+            score.put()
+        else:
+            score = Score.query(ancestor=game.key).get()
+
         if game.game_over:
             return game.to_form('Game already over!')
 
@@ -177,6 +194,8 @@ class GuessANumberApi(remote.Service):
         if guess == targetLower:
             game.end_game(True)
             correct_guesses = target
+            score.solved=True
+            score.put()
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
             )

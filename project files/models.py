@@ -21,7 +21,7 @@ class Game(ndb.Model):
     attempts_allowed = ndb.IntegerProperty(required=True)
     correct_guesses = ndb.StringProperty()
     all_guesses = ndb.StringProperty()
-    attempts_remaining = ndb.IntegerProperty(required=True, default=5)
+    attempts_remaining = ndb.IntegerProperty(required=True, default=6)
     cancelled = ndb.BooleanProperty(required=True, default=False)
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
@@ -87,8 +87,17 @@ class Game(ndb.Model):
         self.game_over = True
         self.put()
         # Add the game to the score 'board'
-        score = Score(user=self.user, date=date.today(), won=won,
-                      guesses=self.attempts_allowed - self.attempts_remaining)
+        score = Score(
+                      user=self.user,
+                      date=date.today(),
+                      complete=yes,
+                      won=won,
+                      total_guesses = self.total_guesses
+                      correct_guesses = self.correct_guesses
+                      incorrect_guesses = self.incorrect_guesses
+                      not_valid_guesses = self.not_valid_guesses
+                      solved = self.solved
+                      )
         score.put()
 
 
@@ -97,11 +106,24 @@ class Score(ndb.Model):
     user = ndb.KeyProperty(required=True, kind='User')
     date = ndb.DateProperty(required=True)
     won = ndb.BooleanProperty(required=True)
-    guesses = ndb.IntegerProperty(required=True)
+    complete = ndb.BooleanProperty(required=True)
+    total_guesses = ndb.IntegerProperty(required=True)
+    correct_guesses = ndb.IntegerProperty()
+    incorrect_guesses = ndb.IntegerProperty()
+    not_valid_guesses = ndb.IntegerProperty()
+    solved = ndb.BooleanProperty(default=False)
 
     def to_form(self):
-        return ScoreForm(user_name=self.user.get().name, won=self.won,
-                         date=str(self.date), guesses=self.guesses)
+        return ScoreForm(user_name=self.user.get().name,
+                         date=str(self.date),
+                         won=self.won,
+                         complete=self.complete,
+                         total_guesses=self.total_guesses,
+                         correct_guesses=self.correct_guesses,
+                         incorrect_guesses=self.incorrect_guesses,
+                         not_valid_guesses=self.not_valid_guesses,
+                         solved=self.solved
+                         )
 
 
 class GameForm(messages.Message):
@@ -137,7 +159,12 @@ class ScoreForm(messages.Message):
     user_name = messages.StringField(1, required=True)
     date = messages.StringField(2, required=True)
     won = messages.BooleanField(3, required=True)
-    guesses = messages.IntegerField(4, required=True)
+    complete = messages.BooleanField(4, required=True)
+    total_guesses = messages.IntegerField(5, required=True)
+    correct_guesses = messages.IntegerField(6)
+    incorrect_guesses = messages.IntegerField(7)
+    not_valid_guesses = messages.IntegerField(8)
+    solved = messages.BooleanField(9)
 
 
 class ScoreForms(messages.Message):

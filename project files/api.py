@@ -144,13 +144,13 @@ class GuessANumberApi(remote.Service):
                     total_guesses=0
             )
             score.put()
-        else:
-            score = Score.query(ancestor=game.key).get()
-            # get these from datastore so they can be updated
-            total_guesses = score.total_guesses
-            correct_guesses = score.correct_guesses
-            incorrect_guesses = score.incorrect_guesses
-            not_valid_guesses = score.not_valid_guesses
+
+        score = Score.query(ancestor=game.key).get()
+        # get these from datastore so they can be updated
+        total_guesses = score.total_guesses
+        correct_guesses = score.correct_guesses
+        incorrect_guesses = score.incorrect_guesses
+        not_valid_guesses = score.not_valid_guesses
 
         if game.game_over:
             return game.to_form('Game already over!')
@@ -195,6 +195,7 @@ class GuessANumberApi(remote.Service):
             game.correct_guesses = show_target_string
             return show_target_string
 
+        # begin evaluating guesses
         # allow solving
         if guess == targetLower:
             game.end_game(True)
@@ -235,7 +236,8 @@ class GuessANumberApi(remote.Service):
             score.put()
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
-
+        # end evaluating guesses
+        
         # save msg and guess to game.all_guesses for get_game_history
         if game.all_guesses == None:
             game.all_guesses = ("['Guess: %s', 'Message %s']") % (guess, msg)

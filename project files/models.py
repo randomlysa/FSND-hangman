@@ -109,10 +109,10 @@ class Score(ndb.Model):
     date = ndb.DateProperty(required=True)
     won = ndb.BooleanProperty(required=True)
     complete = ndb.BooleanProperty(required=True)
-    total_guesses = ndb.IntegerProperty(required=True)
-    correct_guesses = ndb.IntegerProperty()
-    incorrect_guesses = ndb.IntegerProperty()
-    not_valid_guesses = ndb.IntegerProperty()
+    total_guesses = ndb.IntegerProperty(required=True, default=0)
+    correct_guesses = ndb.IntegerProperty(default=0)
+    incorrect_guesses = ndb.IntegerProperty(default=0)
+    not_valid_guesses = ndb.IntegerProperty(default=0)
     solved = ndb.BooleanProperty(default=False)
 
     def to_form(self):

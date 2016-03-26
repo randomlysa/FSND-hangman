@@ -24,6 +24,9 @@ MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     urlsafe_game_key=messages.StringField(1),)
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
+HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
+        number_of_results=messages.IntegerField(1)
+    )
 
 MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
@@ -282,6 +285,15 @@ class GuessANumberApi(remote.Service):
                     'A User with that name does not exist!')
         scores = Score.query(Score.user == user.key)
         return ScoreForms(items=[score.to_form() for score in scores])
+
+    @endpoints.method(request_message=HIGH_SCORE_REQUEST,
+                      response_message=ScoreForms,
+                      path='get_high_scores',
+                      name='get_high_scores',
+                      http_method='GET')
+    def get_high_scores(self, request):
+        """Return high scores"""
+        return ScoreForms(items=[score.to_form() for score in Score.query()])
 
     @endpoints.method(response_message=StringMessage,
                       path='games/average_attempts',

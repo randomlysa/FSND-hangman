@@ -117,7 +117,7 @@ class Score(ndb.Model):
     difficulty = ndb.StringProperty()
 
     def to_form(self):
-        return ScoreForm(user_name=self.user.get().name,
+        return ScoreForm(user_name=self.user_name.get().name,
                          date=str(self.date),
                          won=self.won,
                          complete=self.complete,

@@ -146,6 +146,11 @@ class GuessANumberApi(remote.Service):
             score.put()
         else:
             score = Score.query(ancestor=game.key).get()
+            # get these from datastore so they can be updated
+            total_guesses = score.total_guesses
+            correct_guesses = score.correct_guesses
+            incorrect_guesses = score.incorrect_guesses
+            not_valid_guesses = score.not_valid_guesses
 
         if game.game_over:
             return game.to_form('Game already over!')
@@ -200,13 +205,21 @@ class GuessANumberApi(remote.Service):
                         'You solved the puzzle! The correct word is: ' + target
             )
         elif len(guess) == 0:
+            score.not_valid_guesses = not_valid_guesses + 1
+            score.put()
             msg = "You didn't guess a letter!"
         elif len(guess) > 1:
+            score.not_valid_guesses = not_valid_guesses + 1
+            score.put()
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in correct_guesses:
+            score.not_valid_guesses = not_valid_guesses + 1
+            score.put()
             msg = "You already correctly guessed this letter!"
         elif guess in game.target:
-            # save the correct guess so the target word can be revealed
+            # save and log the correct guess so the target word can be revealed
+            score.correct_guesses = correct_guesses + 1
+            score.put()
             game.correct_guesses = reveal_word(guess)
             # check if this letter completed the word
             reveal_word_solve = game.correct_guesses
@@ -218,6 +231,8 @@ class GuessANumberApi(remote.Service):
                 msg = 'Correct! Guess another letter.'
                 # game.correct_guesses = reveal_word()
         else:
+            score.incorrect_guesses = incorrect_guesses + 1
+            score.put()
             msg = 'Incorrect! That letter is not in the word.'
             game.attempts_remaining -= 1
 

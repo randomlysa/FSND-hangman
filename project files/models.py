@@ -17,8 +17,8 @@ class User(ndb.Model):
 class Game(ndb.Model):
     """Game object"""
     target = ndb.StringProperty()
-    correct_letters = ndb.StringProperty(repeated=True)
-    all_letters = ndb.StringProperty(repeated=True)
+    correct_letters = ndb.StringProperty()
+    all_guesses = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
     attempts_remaining = ndb.IntegerProperty(required=True, default=6)
     cancelled = ndb.BooleanProperty(required=True, default=False)
@@ -50,6 +50,8 @@ class Game(ndb.Model):
         # set correct guesses to be the same number of underscores as the words
         # otherwise the first letter guessed will cause an error because
         # correct_letters is None in datastore,but it is expected to be a string
+        correct_letters = "_ " * len(word)
+
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')

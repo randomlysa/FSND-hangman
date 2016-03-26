@@ -32,7 +32,9 @@ class Game(ndb.Model):
         valid_attempts_allowed = [6, 8, 12]
 
         # pick random word from file, with correct length
-        words_file = open('wordsEn.txt', 'r')
+        # https://github.com/first20hours/google-10000-english
+        # removed words shorter than 4 letters
+        words_file = open('google-10000-english-usa.txt', 'r')
         all_words = words_file.readlines()
 
         # create a list of words that are the correct length

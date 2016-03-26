@@ -181,6 +181,7 @@ class GuessANumberApi(remote.Service):
                         'You solved the puzzle! The correct word is: ' + target
             )
         elif len(guess) == 0:
+            msg = "You didn't guess a letter!"
         elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in correct_guesses:

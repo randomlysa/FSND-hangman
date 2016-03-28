@@ -215,7 +215,7 @@ class GuessANumberApi(remote.Service):
             correct_letters = target
             score.solved=True
             score.won=True
-            score.valid_for_high_score = True
+            score.complete = True
             score.put()
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
@@ -242,7 +242,7 @@ class GuessANumberApi(remote.Service):
             if reveal_word_solve == target:
                 game.end_game(True)
                 score.won=True
-                score.valid_for_high_score = True
+                score.complete = True
                 score.put()
                 return game.to_form('You win!')
             else:
@@ -298,7 +298,7 @@ class GuessANumberApi(remote.Service):
     def get_high_scores(self, request):
         """Return high scores"""
         high_scores = \
-                      Score.query(Score.valid_for_high_score==True)\
+                      Score.query(Score.complete==True)\
                       .order(Score.incorrect_guesses)
         return ScoreForms(items=[score.to_form() for score in high_scores])
 

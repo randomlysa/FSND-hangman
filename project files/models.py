@@ -115,7 +115,6 @@ class Score(ndb.Model):
     not_valid_guesses = ndb.IntegerProperty(default=0)
     solved = ndb.BooleanProperty(default=False)
     difficulty = ndb.StringProperty()
-    valid_for_high_score = ndb.BooleanProperty(default=False)
 
     def to_form(self):
         return ScoreForm(user_name=self.user_name.get().name,
@@ -169,7 +168,6 @@ class ScoreForm(messages.Message):
     not_valid_guesses = messages.IntegerField(8)
     solved = messages.BooleanField(9)
     difficulty = messages.StringField(10)
-    valid_for_high_score = messages.BooleanField(11)
 
 
 class ScoreForms(messages.Message):

@@ -331,7 +331,9 @@ class GuessANumberApi(remote.Service):
                 if game.user_name not in users_this_level:
                     users_this_level.append(game.user_name)
 
+            results_this_level = []
             for user in users_this_level:
+                full_info = user.get()
                 games_played = len(Score.query(Score.user_name==user).fetch())
                 wins = len(
                             Score.query(
@@ -343,15 +345,21 @@ class GuessANumberApi(remote.Service):
                 for game in games:
                     incorrect_guesses.append(game.incorrect_guesses)
 
-
                 wins = float(wins)
                 games_played = float(games_played)
-                win_percentage = wins / games_played
+                win_percentage = (wins / games_played) * 100
 
+                '''
                 logging.info(games_played)
                 logging.info(wins)
                 logging.info(incorrect_guesses)
                 logging.info(win_percentage)
+                '''
+                results_this_level.append(
+                            (str(full_info.name), int(win_percentage)),
+                            )
+
+            list.sort(results_this_level, key=lambda  score: score[1], reverse=True)
 
 
 

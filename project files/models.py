@@ -178,3 +178,7 @@ class ScoreForms(messages.Message):
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     message = messages.StringField(1, required=True)
+
+class UserRankings(messages.Message):
+    user_name = messages.StringField(1, required=True)
+    performance = messages.StringField(2, required=True)

@@ -10,10 +10,12 @@ from datetime import date
 from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
+
 
 from models import User, Game, Score
 from models import StringMessage, NewGameForm, GameForm, GameKeys, \
-    MakeMoveForm, ScoreForms
+    MakeMoveForm, ScoreForms, UserRankings
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -109,7 +111,7 @@ class GuessANumberApi(remote.Service):
                       name='cancel_game',
                       http_method='GET')
     def cancel_game(self, request):
-        """Cancel a non-completed game. ---"""
+        """Cancel a non-completed game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
 
         if game.game_over != True and game.cancelled != True:
@@ -262,6 +264,8 @@ class GuessANumberApi(remote.Service):
             game.all_guesses += ("[]'Guess: %s', 'Message %s']") % (guess, msg)
 
         if game.attempts_remaining < 1:
+            score.complete = True
+            score.put()
             game.end_game(False)
             return game.to_form(msg + ' Game over!')
         else:
@@ -301,6 +305,55 @@ class GuessANumberApi(remote.Service):
                       Score.query(Score.complete==True)\
                       .order(Score.incorrect_guesses)
         return ScoreForms(items=[score.to_form() for score in high_scores])
+
+    @endpoints.method(request_message=HIGH_SCORE_REQUEST,
+                      response_message=UserRankings,
+                      path='get_user_rankings',
+                      name='get_user_rankings',
+                      http_method='GET')
+    def get_user_rankings(self, request):
+        """Return user rankings, grouped by difficulty. Factors:
+            40% - Won/Loss %
+            40% - Number of guesses remaining
+                    (take into consideration guesses allowed ie difficulty)
+            20% - Number of problems solved with < 50% of the word guessed
+            ---
+        """
+        difficulty_levels = ['easy', 'medium', 'hard']
+        for difficulty in difficulty_levels:
+            # get all games for a difficulty level
+            games_this_level = Score.query(Score.difficulty==difficulty).fetch()
+            logging.info(difficulty)
+
+            users_this_level = []
+            for game in games_this_level:
+                # make list of users for this level
+                if game.user_name not in users_this_level:
+                    users_this_level.append(game.user_name)
+
+            for user in users_this_level:
+                games_played = len(Score.query(Score.user_name==user).fetch())
+                wins = len(
+                            Score.query(
+                                    ndb.AND(Score.user_name==user,
+                                        ndb.AND(Score.won==True))).fetch()
+                        )
+                incorrect_guesses = []
+                games = Score.query(Score.user_name==user).fetch()
+                for game in games:
+                    incorrect_guesses.append(game.incorrect_guesses)
+
+
+                wins = float(wins)
+                games_played = float(games_played)
+                win_percentage = wins / games_played
+
+                logging.info(games_played)
+                logging.info(wins)
+                logging.info(incorrect_guesses)
+                logging.info(win_percentage)
+
+
 
     @endpoints.method(response_message=StringMessage,
                       path='games/average_attempts',

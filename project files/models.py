@@ -138,8 +138,12 @@ class UserRank(ndb.Model):
     @classmethod
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
-        # userKey = ndb.Key(urlsafe=user)
-        games_played = len(Score.query(Score.user_name==user).fetch())
+        games_played = len(
+                        Score.query(
+                            ndb.AND(Score.user_name==user,
+                                ndb.AND(Score.difficulty==difficulty))).fetch()
+                        )
+
         wins = len(
                     Score.query(
                             ndb.AND(Score.user_name==user,

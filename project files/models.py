@@ -134,6 +134,37 @@ class UserRank(ndb.Model):
     user_name = ndb.KeyProperty(required=True, kind='User')
     difficulty = ndb.StringProperty(required=True)
     performance = ndb.IntegerProperty(required=True)
+
+    @classmethod
+    def set_user_rank(cls, user, difficulty):
+        """Updates a users rank after a game has been completed."""
+        # userKey = ndb.Key(urlsafe=user)
+        games_played = len(Score.query(Score.user_name==user).fetch())
+        wins = len(
+                    Score.query(
+                            ndb.AND(Score.user_name==user,
+                                ndb.AND(Score.won==True,
+                                    ndb.AND(Score.difficulty==difficulty)))).\
+                                    fetch()
+                )
+        incorrect_guesses = []
+        games = Score.query(
+                            ndb.AND(Score.user_name==user,
+                                ndb.AND(Score.difficulty==difficulty))).fetch()
+        for game in games:
+            incorrect_guesses.append(game.incorrect_guesses)
+
+        wins = float(wins)
+        games_played = float(games_played)
+        win_percentage = int((wins / games_played) * 100)
+
+        rank = UserRank(
+                user_name=user,
+                difficulty=difficulty,
+                performance=win_percentage
+        )
+        rank.put()
+
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)

@@ -129,6 +129,11 @@ class Score(ndb.Model):
                          )
 
 
+class UserRank(ndb.Model):
+    """User Rank object"""
+    user_name = ndb.KeyProperty(required=True, kind='User')
+    difficulty = ndb.StringProperty(required=True)
+    performance = ndb.IntegerProperty(required=True)
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)
@@ -179,6 +184,10 @@ class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     message = messages.StringField(1, required=True)
 
-class UserRankings(messages.Message):
+class UserRankForm(messages.Message):
     user_name = messages.StringField(1, required=True)
+    difficulty = messages.StringField(3, required=True)
     performance = messages.StringField(2, required=True)
+
+class UserRankForms(messages.Message):
+    rankings = messages.MessageField(UserRankForm, 1, repeated=True)

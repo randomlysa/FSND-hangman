@@ -162,12 +162,23 @@ class UserRank(ndb.Model):
         games_played = float(games_played)
         win_percentage = int((wins / games_played) * 100)
 
-        rank = UserRank(
-                user_name=user,
-                difficulty=difficulty,
-                performance=win_percentage
-        )
-        rank.put()
+        rank = UserRank.query(
+                            ndb.AND(UserRank.user_name==user,
+                                ndb.AND(UserRank.difficulty==difficulty)
+                            )).get()
+        if rank == None:
+            # rank is empty, create it
+            rank = UserRank(
+                            user_name=user,
+                            difficulty=difficulty,
+                            performance=win_percentage
+                            )
+            rank.put()
+        else:
+            # rank exists. update it.
+            rank.performance = win_percentage
+            rank.put()
+
 
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""

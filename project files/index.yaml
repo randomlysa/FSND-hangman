@@ -22,6 +22,12 @@ indexes:
 
 - kind: Score
   properties:
+  - name: complete
+  - name: score
+    direction: desc
+
+- kind: Score
+  properties:
   - name: valid_for_high_score
   - name: correct_guesses
 

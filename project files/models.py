@@ -111,7 +111,8 @@ class Score(ndb.Model):
                          correct_guesses=self.correct_guesses,
                          incorrect_guesses=self.incorrect_guesses,
                          not_valid_guesses=self.not_valid_guesses,
-                         solved=self.solved
+                         solved=self.solved,
+                         score=self.score
                          )
 
 

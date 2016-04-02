@@ -2,7 +2,7 @@
 entities used by the Game. Because these classes are also regular Python
 classes they can include methods (such as 'to_form' and 'new_game')."""
 
-import random
+import random, logging
 from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
@@ -138,30 +138,18 @@ class UserRank(ndb.Model):
     @classmethod
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
-        games_played = len(
-                        Score.query(
-                            ndb.AND(Score.user_name==user,
-                                ndb.AND(Score.difficulty==difficulty))).fetch()
-                        )
+        # get scores for all games by this user in every difficulty level
+        all_games_played = Score.query(ancestor=user).fetch()
+        games_this_difficulty_level = 0
+        wins = 0
+        # count games/wins for this difficulty level
+        for game in all_games_played:
+            if game.difficulty==difficulty:
+                games_this_difficulty_level += 1
+                if game.won==True:
+                    wins += 1
 
-        wins = len(
-                    Score.query(
-                            ndb.AND(Score.user_name==user,
-                                ndb.AND(Score.won==True,
-                                    ndb.AND(Score.difficulty==difficulty)))).\
-                                    fetch()
-                )
-        incorrect_guesses = []
-        games = Score.query(
-                            ndb.AND(Score.user_name==user,
-                                ndb.AND(Score.difficulty==difficulty))).fetch()
-        for game in games:
-            incorrect_guesses.append(game.incorrect_guesses)
-
-        wins = float(wins)
-        games_played = float(games_played)
-        win_percentage = int((wins / games_played) * 100)
-
+        win_percentage = int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
                             ndb.AND(UserRank.user_name==user,
                                 ndb.AND(UserRank.difficulty==difficulty)

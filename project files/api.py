@@ -137,12 +137,12 @@ class GuessANumberApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key==game.user).get()
         # convert attempts_remaining to a difficulty level
-        difficult = game.attempts_remaining
-        if difficult == 6:
+        difficulty = game.attempts_remaining
+        if difficulty == 6:
             set_difficulty = 'hard'
-        elif difficult == 8:
+        elif difficulty == 8:
             set_difficulty = 'medium'
-        elif difficult == 12:
+        elif difficulty == 12:
             set_difficulty = 'low'
         # set up scoring
         if Score.query(ancestor=game.key).get() == None:

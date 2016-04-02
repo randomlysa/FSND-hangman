@@ -152,7 +152,7 @@ class GuessANumberApi(remote.Service):
                     date=date.today(),
                     won=False,
                     complete=False,
-                    total_guesses=0,                    
+                    total_guesses=0,
                     difficulty=set_difficulty
             )
             score.put()
@@ -252,6 +252,13 @@ class GuessANumberApi(remote.Service):
                 game.end_game(True)
                 score.won=True
                 score.complete = True
+                # update score with % of guesses being correct
+                # add 1 to correct guesses and total_guesses since neither has
+                # been updated/retrived for this guess.
+                setScore = int(
+                    (float(correct_guesses + 1) / (total_guesses + 1)) * 1000
+                    )
+                score.score = setScore
                 score.put()
                 UserRank.set_user_rank(user.key, difficulty)
                 return game.to_form('You win!')
@@ -273,7 +280,14 @@ class GuessANumberApi(remote.Service):
             game.all_guesses += ("[]'Guess: %s', 'Message %s']") % (guess, msg)
 
         if game.attempts_remaining < 1:
+            # this is game over, you have run out of guesses
             score.complete = True
+            # update score with % of guesses being correct
+            # add +1 to the value we got from datastore for total_guesses
+            setScore = int(
+                (float(correct_guesses) / (total_guesses + 1)) * 1000
+                )
+            score.score = setScore
             score.put()
             game.end_game(False)
             UserRank.set_user_rank(user.key, difficulty)

@@ -136,13 +136,13 @@ class GuessANumberApi(remote.Service):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key==game.user).get()
-        # convert attempts_remaining to a difficulty level
-        difficulty = game.attempts_remaining
-        if difficulty == 6:
+        # convert attempts_allowed to a difficulty level
+        int_difficulty = game.attempts_allowed
+        if int_difficulty == 6:
             set_difficulty = 'hard'
-        elif difficulty == 8:
+        elif int_difficulty == 8:
             set_difficulty = 'medium'
-        elif difficulty == 12:
+        elif int_difficulty == 12:
             set_difficulty = 'low'
         # set up scoring
         if Score.query(ancestor=game.key).get() == None:
@@ -152,9 +152,7 @@ class GuessANumberApi(remote.Service):
                     date=date.today(),
                     won=False,
                     complete=False,
-                    total_guesses=0,
-                    # this should be the same as attempts
-                    # the first time it is run
+                    total_guesses=0,                    
                     difficulty=set_difficulty
             )
             score.put()
@@ -166,7 +164,7 @@ class GuessANumberApi(remote.Service):
         incorrect_guesses = score.incorrect_guesses
         not_valid_guesses = score.not_valid_guesses
         # needed for UserRank.set_user_rank
-        difficulty=score.difficulty
+        difficulty = score.difficulty
 
         if game.game_over:
             return game.to_form('Game already over!')

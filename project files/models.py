@@ -86,21 +86,6 @@ class Game(ndb.Model):
         the player lost."""
         self.game_over = True
         self.put()
-        # Add the game to the score 'board' - this is now done every move
-        """
-        score = Score(
-                      user=self.user,
-                      date=date.today(),
-                      complete=yes,
-                      won=won,
-                      total_guesses = self.total_guesses,
-                      correct_guesses = self.correct_guesses,
-                      incorrect_guesses = self.incorrect_guesses,
-                      not_valid_guesses = self.not_valid_guesses,
-                      solved = self.solved
-                      )
-        score.put()
-        """
 
 
 class Score(ndb.Model):

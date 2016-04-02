@@ -165,6 +165,8 @@ class GuessANumberApi(remote.Service):
         correct_guesses = score.correct_guesses
         incorrect_guesses = score.incorrect_guesses
         not_valid_guesses = score.not_valid_guesses
+        # needed for UserRank.set_user_rank
+        difficulty=score.difficulty
 
         if game.game_over:
             return game.to_form('Game already over!')
@@ -218,6 +220,7 @@ class GuessANumberApi(remote.Service):
             score.won=True
             score.complete = True
             score.put()
+            UserRank.set_user_rank(user.key, difficulty)
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
             )
@@ -245,6 +248,7 @@ class GuessANumberApi(remote.Service):
                 score.won=True
                 score.complete = True
                 score.put()
+                UserRank.set_user_rank(user.key, difficulty)
                 return game.to_form('You win!')
             else:
                 msg = 'Correct! Guess another letter.'
@@ -266,6 +270,7 @@ class GuessANumberApi(remote.Service):
             score.complete = True
             score.put()
             game.end_game(False)
+            UserRank.set_user_rank(user.key, difficulty)
             return game.to_form(msg + ' Game over!')
         else:
             game.put()

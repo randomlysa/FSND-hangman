@@ -327,7 +327,7 @@ class GuessANumberApi(remote.Service):
         """Return high scores ---"""
         high_scores = \
                       Score.query(Score.complete==True)\
-                      .order(Score.incorrect_guesses)\
+                      .order(-Score.score)\
                       .fetch(request.number_of_results)
         return ScoreForms(items=[score.to_form() for score in high_scores])
 

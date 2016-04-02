@@ -307,7 +307,8 @@ class GuessANumberApi(remote.Service):
         """Return high scores"""
         high_scores = \
                       Score.query(Score.complete==True)\
-                      .order(Score.incorrect_guesses)
+                      .order(Score.incorrect_guesses)\
+                      .fetch(request.number_of_results)
         return ScoreForms(items=[score.to_form() for score in high_scores])
 
     @endpoints.method(response_message=UserRankForms,

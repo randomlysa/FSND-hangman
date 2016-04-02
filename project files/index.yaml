@@ -17,6 +17,11 @@ indexes:
 
 - kind: Score
   properties:
+  - name: complete
+  - name: incorrect_guesses
+
+- kind: Score
+  properties:
   - name: valid_for_high_score
   - name: correct_guesses
 

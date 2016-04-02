@@ -159,10 +159,11 @@ class GuessANumberApi(remote.Service):
 
         score = Score.query(ancestor=game.key).get()
         # get these from datastore so they can be updated
-        total_guesses = score.total_guesses
+        # total_guesses = score.total_guesses
         correct_guesses = score.correct_guesses
         incorrect_guesses = score.incorrect_guesses
         not_valid_guesses = score.not_valid_guesses
+        total_guesses = correct_guesses + incorrect_guesses
         # needed for UserRank.set_user_rank
         difficulty = score.difficulty
 

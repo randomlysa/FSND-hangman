@@ -135,6 +135,13 @@ class UserRank(ndb.Model):
     difficulty = ndb.StringProperty(required=True)
     performance = ndb.IntegerProperty(required=True)
 
+    def to_form(self):
+        return UserRankForm(
+                        user_name=self.user_name.get().name,
+                        performance=self.performance,
+                        difficulty=self.difficulty
+                        )
+
     @classmethod
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
@@ -221,7 +228,7 @@ class StringMessage(messages.Message):
 class UserRankForm(messages.Message):
     user_name = messages.StringField(1, required=True)
     difficulty = messages.StringField(3, required=True)
-    performance = messages.StringField(2, required=True)
+    performance = messages.IntegerField(2, required=True)
 
 class UserRankForms(messages.Message):
     rankings = messages.MessageField(UserRankForm, 1, repeated=True)

@@ -310,61 +310,18 @@ class GuessANumberApi(remote.Service):
                       .order(Score.incorrect_guesses)
         return ScoreForms(items=[score.to_form() for score in high_scores])
 
-    @endpoints.method(request_message=HIGH_SCORE_REQUEST,
-                      response_message=UserRankings,
+    @endpoints.method(response_message=UserRankForms,
                       path='get_user_rankings',
                       name='get_user_rankings',
                       http_method='GET')
     def get_user_rankings(self, request):
-        """Return user rankings, grouped by difficulty. Factors:
-            40% - Won/Loss %
-            40% - Number of guesses remaining
-                    (take into consideration guesses allowed ie difficulty)
-            20% - Number of problems solved with < 50% of the word guessed
-            ---
-        """
-        difficulty_levels = ['easy', 'medium', 'hard']
-        for difficulty in difficulty_levels:
-            # get all games for a difficulty level
-            games_this_level = Score.query(Score.difficulty==difficulty).fetch()
-            logging.info(difficulty)
+        """Return user rankings (w/l%), grouped by difficulty."""
 
-            users_this_level = []
-            for game in games_this_level:
-                # make list of users for this level
-                if game.user_name not in users_this_level:
-                    users_this_level.append(game.user_name)
-
-            results_this_level = []
-            for user in users_this_level:
-                full_info = user.get()
-                games_played = len(Score.query(Score.user_name==user).fetch())
-                wins = len(
-                            Score.query(
-                                    ndb.AND(Score.user_name==user,
-                                        ndb.AND(Score.won==True))).fetch()
-                        )
-                incorrect_guesses = []
-                games = Score.query(Score.user_name==user).fetch()
-                for game in games:
-                    incorrect_guesses.append(game.incorrect_guesses)
-
-                wins = float(wins)
-                games_played = float(games_played)
-                win_percentage = (wins / games_played) * 100
-
-                '''
-                logging.info(games_played)
-                logging.info(wins)
-                logging.info(incorrect_guesses)
-                logging.info(win_percentage)
-                '''
-                results_this_level.append(
-                            (str(full_info.name), int(win_percentage)),
-                            )
-
-            list.sort(results_this_level, key=lambda  score: score[1], reverse=True)
-
+        user_rank = \
+                      UserRank.query()\
+                      .order(UserRank.difficulty, -UserRank.performance)
+        logging.info(user_rank)
+        return UserRankForms(rankings=[rank.to_form() for rank in user_rank])
 
 
     @endpoints.method(response_message=StringMessage,

@@ -24,3 +24,15 @@ indexes:
   properties:
   - name: valid_for_high_score
   - name: incorrect_guesses
+
+- kind: UserRank
+  properties:
+  - name: difficulty
+  - name: performance
+    direction: desc
+
+- kind: UserRank
+  properties:
+  - name: performance
+    direction: desc
+  - name: difficulty

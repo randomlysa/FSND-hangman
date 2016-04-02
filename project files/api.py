@@ -212,19 +212,22 @@ class GuessANumberApi(remote.Service):
             return show_target_string
 
         # begin evaluating guesses
-        # allow solving
+        """
+        # first, allow solving
         if guess == targetLower:
             game.end_game(True)
             correct_letters = target
             score.solved=True
             score.won=True
             score.complete = True
+            score.score = score
             score.put()
             UserRank.set_user_rank(user.key, difficulty)
             return game.to_form(
                         'You solved the puzzle! The correct word is: ' + target
             )
-        elif len(guess) == 0:
+        """
+        if len(guess) == 0:
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = "You didn't guess a letter!"

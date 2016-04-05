@@ -10,11 +10,13 @@ from datetime import date
 from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
 
 
 from models import User, Game, Score
 from models import StringMessage, NewGameForm, GameForm, GameKeys, \
-    MakeMoveForm, ScoreForms, UserRank, UserRankForm, UserRankForms
+    MakeMoveForm, ScoreForms, UserRank, UserRankForm, UserRankForms, \
+    GameHistoryForm
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -299,6 +301,23 @@ class GuessANumberApi(remote.Service):
         else:
             game.put()
             return game.to_form(msg)
+
+
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=GameHistoryForm,
+                      path='get_game_history',
+                      name='get_game_history',
+                      http_method='GET')
+    def get_game_history(self, request):
+        """Return a move-by-move history of a game.---"""
+        game = ndb.Key(urlsafe=request.urlsafe_game_key).get()
+        # convert game.all_guesses from list to string
+        history = ', '.join(x for x in game.all_guesses)
+        gh = GameHistoryForm()
+        gh.history = history        
+        gh.check_initialized()
+        return gh
+
 
     @endpoints.method(response_message=ScoreForms,
                       path='scores',

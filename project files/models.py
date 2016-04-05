@@ -221,3 +221,7 @@ class UserRankForm(messages.Message):
 
 class UserRankForms(messages.Message):
     rankings = messages.MessageField(UserRankForm, 1, repeated=True)
+
+class GameHistoryForm(messages.Message):
+    """StringMessage-- outbound (single) string message"""
+    history = messages.StringField(1)

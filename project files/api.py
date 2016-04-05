@@ -274,10 +274,14 @@ class GuessANumberApi(remote.Service):
         # here I can put things that can be run on any guess
 
         # save msg and guess to game.all_guesses for get_game_history
+        # set the message for game history
+        history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (
+                    guess, msg, game.attempts_remaining
+        )
         if game.all_guesses == None:
-            game.all_guesses = ("['Guess: %s', 'Message %s']") % (guess, msg)
+            game.all_guesses = history
         else:
-            game.all_guesses += ("[]'Guess: %s', 'Message %s']") % (guess, msg)
+            game.all_guesses.append(history)
 
         if game.attempts_remaining < 1:
             # this is game over, you have run out of guesses

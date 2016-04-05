@@ -15,13 +15,13 @@ A simple implementation of hangman. Each game begins with a random 'target'
 word with  a maximum number of 'attempts' allowed.
 'Guesses' are sent to the `make_move` endpoint which will reply
 with either:
-'You win' if you guess the entire word (solve) or guess all the letters, or
-'you lose' if you run out of letters,
+'You win' if you guess all the letters, or
+'you lose' if you run out of attempts,
 whether the guessed letter was correct or not,
 as well as the following other miscellaneous messages:
-the target word with underscores for missing letters if the 'guess' was empty,
-an note indicating if you already *correctly* guessed this letter,
-an error if you guess more than one letter.
+Empty guess = "You didn't guess a letter!"
+Letter already correctly guessed: "You already correctly guessed this letter!"
+More than one letter guessed: "You cannot guess more than one letter at a time!""
 Incorrect guesses are not logged! You can guess the same incorrect letter as
 often as you want.
 
@@ -49,10 +49,13 @@ given time. Each game can be retrieved or played by using the path parameter
  - **new_game**
     - Path: 'game'
     - Method: POST
-    - Parameters: user_name, target, attempts
+    - Parameters: user_name, max_letters, min_letters, attempts
     - Returns: GameForm with initial game state.
     - Description: Creates a new Game. user_name provided must correspond to an
     existing user - will raise a NotFoundException if not.
+    Attempts must be 6 (hard), 8 (medium), or 12 (easy).
+    max_letters (default = 12) and min_letters (default = 6) specifies what
+    length you want the target word to be.
     Also adds a task to a task queue to update the average moves remaining
     for active games.
 
@@ -61,7 +64,10 @@ given time. Each game can be retrieved or played by using the path parameter
     - Method: GET
     - Parameters: urlsafe_game_key
     - Returns: GameForm with current game state.
-    - Description: Returns the current state of a game.
+    - Description: Returns the current state of a game, which includes:
+      attempts_remaining, the target word with correct letters added and
+      underscores for letters that have not been guessed, whether the game is
+      over, a message, the game urlsafe_key, and the user name.
 
  - **make_move**
     - Path: 'game/{urlsafe_game_key}'

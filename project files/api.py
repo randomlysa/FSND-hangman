@@ -237,6 +237,8 @@ class GuessANumberApi(remote.Service):
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = 'You cannot guess more than one letter at a time!'
+        elif guess in game.incorrect_letters:
+                msg = "You already incorrectly guessed this letter!"
         elif guess in correct_letters:
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
@@ -271,6 +273,10 @@ class GuessANumberApi(remote.Service):
             score.incorrect_guesses = incorrect_guesses + 1
             score.put()
             msg = 'Incorrect! That letter is not in the word.'
+            if game.incorrect_letters == '':
+                game.incorrect_letters = guess
+            else:
+                game.incorrect_letters += guess
             game.attempts_remaining -= 1
         # end evaluating guesses
         # here I can put things that can be run on any guess

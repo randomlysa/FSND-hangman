@@ -18,6 +18,7 @@ class Game(ndb.Model):
     """Game object"""
     target = ndb.StringProperty()
     correct_letters = ndb.StringProperty()
+    incorrect_letters = ndb.StringProperty(default='')
     all_guesses = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
     attempts_remaining = ndb.IntegerProperty(required=True, default=6)
@@ -77,6 +78,7 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.attempts_remaining = self.attempts_remaining
         form.correct_letters = self.correct_letters
+        form.incorrect_letters = self.incorrect_letters
         form.game_over = self.game_over
         form.message = message
         return form
@@ -168,9 +170,10 @@ class GameForm(messages.Message):
     urlsafe_key = messages.StringField(1, required=True)
     attempts_remaining = messages.IntegerField(2, required=True)
     correct_letters = messages.StringField(3)
-    game_over = messages.BooleanField(4, required=True)
-    message = messages.StringField(5, required=True)
-    user_name = messages.StringField(6, required=True)
+    incorrect_letters = messages.StringField(4)
+    game_over = messages.BooleanField(5, required=True)
+    message = messages.StringField(6, required=True)
+    user_name = messages.StringField(7, required=True)
 
 class GameKeys(messages.Message):
     """Return keys of unfinished games per user."""

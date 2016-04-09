@@ -179,6 +179,8 @@ class GuessANumberApi(remote.Service):
 
         if game.game_over:
             return game.to_form('Game already over!')
+        if game.cancelled:
+            return game.to_form('This game has been cancelled!')
 
         # make the guess lowercase, to be safe.
         guess = request.guess.lower()

@@ -335,7 +335,7 @@ class GuessANumberApi(remote.Service):
                       name='get_game_history',
                       http_method='GET')
     def get_game_history(self, request):
-        """Return a move-by-move history of a game.---"""
+        """Return a move-by-move history of a game."""
         game = ndb.Key(urlsafe=request.urlsafe_game_key).get()
         # convert game.all_guesses from list to string
         history = ', '.join(x for x in game.all_guesses)

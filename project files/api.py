@@ -33,6 +33,7 @@ HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
 
 MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
+
 @endpoints.api(name='hangman', version='v1')
 class GuessANumberApi(remote.Service):
     """Game API"""
@@ -70,7 +71,9 @@ class GuessANumberApi(remote.Service):
                                     request.max_letters
             )
         except ValueError:
-            raise endpoints.BadRequestException('Attempts must be 6, 8, or 12!')
+            raise endpoints.BadRequestException(
+                'Attempts must be 6, 8, or 12!'
+            )
 
         # Use a task queue to update the average attempts remaining.
         # This operation is not needed to complete the creation of a new game
@@ -99,8 +102,8 @@ class GuessANumberApi(remote.Service):
     def get_user_games(self, request):
         """Returns websafe keys of all unfinished games by the user"""
         user_name = request.user_name
-        user = User.query(User.name==user_name).get()
-        games = Game.query(Game.user==user.key).fetch()
+        user = User.query(User.name == user_name).get()
+        games = Game.query(Game.user == user.key).fetch()
         gameKeys = []
         for game in games:
             gameKeys.append(game.key.urlsafe())
@@ -115,19 +118,24 @@ class GuessANumberApi(remote.Service):
         """Cancel a non-completed game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
 
-        if game.game_over != True and game.cancelled != True:
+        if game.game_over is not True and game.cancelled is not True:
             game.cancelled = True
             game.put()
             return StringMessage(message="Game canceled.")
-        elif game.game_over == True:
-            raise endpoints.BadRequestException("You cannot cancel a game that is over.")
-            return StringMessage(message="You cannot cancel a game that is over.")
-        elif game.cancelled == True:
-            raise endpoints.BadRequestException("This game is already canceled!")
+        elif game.game_over is True:
+            raise endpoints.BadRequestException(
+                "You cannot cancel a game that is over."
+            )
+            return StringMessage(
+                message="You cannot cancel a game that is over."
+            )
+        elif game.cancelled is True:
+            raise endpoints.BadRequestException\(
+                "This game is already canceled!"
+            )
             return StringMessage(message="This game is already canceled!")
         else:
             return StringMessage(message="Something odd happened!")
-
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
@@ -137,7 +145,7 @@ class GuessANumberApi(remote.Service):
     def make_move(self, request):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
-        user = User.query(User.key==game.user).get()
+        user = User.query(User.key == game.user).get()
         # convert attempts_allowed to a difficulty level
         int_difficulty = game.attempts_allowed
         if int_difficulty == 6:
@@ -177,7 +185,7 @@ class GuessANumberApi(remote.Service):
         target = game.target
         targetLower = target.lower()
         # set game.correct_letters to be a string
-        if game.correct_letters == None:
+        if game.correct_letters is None:
             correct_letters = ''
         else:
             correct_letters = game.correct_letters
@@ -190,7 +198,7 @@ class GuessANumberApi(remote.Service):
             # logging.info(target)
             show_target = []
             # logging.info(show_target)
-            i = 0 # keep track of what letter we are on / to replace
+            i = 0  # keep track of what letter we are on / to replace
             for letter in targetLower:
                 if letter == guess:
                     # append currently correctly guessed letter
@@ -254,7 +262,7 @@ class GuessANumberApi(remote.Service):
             # check if this letter solved the word
             if reveal_word_solve == target:
                 game.end_game(True)
-                score.won=True
+                score.won = True
                 score.complete = True
                 # update score with % of guesses being correct
                 # add 1 to correct guesses and total_guesses since neither has
@@ -286,7 +294,7 @@ class GuessANumberApi(remote.Service):
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (
                     guess, msg, game.attempts_remaining
         )
-        if game.all_guesses == None:
+        if game.all_guesses is None:
             game.all_guesses = history
         else:
             game.all_guesses.append(history)
@@ -308,7 +316,6 @@ class GuessANumberApi(remote.Service):
             game.put()
             return game.to_form(msg)
 
-
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameHistoryForm,
                       path='get_game_history',
@@ -320,10 +327,9 @@ class GuessANumberApi(remote.Service):
         # convert game.all_guesses from list to string
         history = ', '.join(x for x in game.all_guesses)
         gh = GameHistoryForm()
-        gh.history = history        
+        gh.history = history
         gh.check_initialized()
         return gh
-
 
     @endpoints.method(response_message=ScoreForms,
                       path='scores',
@@ -355,9 +361,9 @@ class GuessANumberApi(remote.Service):
     def get_high_scores(self, request):
         """Return high scores ---"""
         high_scores = \
-                      Score.query(Score.complete==True)\
-                      .order(-Score.score)\
-                      .fetch(request.number_of_results)
+            Score.query(Score.complete == True)\
+            .order(-Score.score)\
+            .fetch(request.number_of_results)
         return ScoreForms(items=[score.to_form() for score in high_scores])
 
     @endpoints.method(response_message=UserRankForms,
@@ -368,11 +374,10 @@ class GuessANumberApi(remote.Service):
         """Return user rankings (w/l%), grouped by difficulty."""
 
         user_rank = \
-                      UserRank.query()\
-                      .order(UserRank.difficulty, -UserRank.performance)
+            UserRank.query()\
+            .order(UserRank.difficulty, -UserRank.performance)
         logging.info(user_rank)
         return UserRankForms(rankings=[rank.to_form() for rank in user_rank])
-
 
     @endpoints.method(response_message=StringMessage,
                       path='games/average_attempts',
@@ -380,7 +385,9 @@ class GuessANumberApi(remote.Service):
                       http_method='GET')
     def get_average_attempts(self, request):
         """Get the cached average moves remaining"""
-        return StringMessage(message=memcache.get(MEMCACHE_MOVES_REMAINING) or '')
+        return StringMessage(
+                message=memcache.get(MEMCACHE_MOVES_REMAINING) or ''
+            )
 
     @staticmethod
     def _cache_average_attempts():
@@ -388,11 +395,13 @@ class GuessANumberApi(remote.Service):
         games = Game.query(Game.game_over == False).fetch()
         if games:
             count = len(games)
-            total_attempts_remaining = sum([game.attempts_remaining
-                                        for game in games])
+            total_attempts_remaining = \
+                sum([game.attempts_remaining for game in games])
             average = float(total_attempts_remaining)/count
-            memcache.set(MEMCACHE_MOVES_REMAINING,
-                         'The average moves remaining is {:.2f}'.format(average))
+            memcache.set(
+                MEMCACHE_MOVES_REMAINING,
+                'The average moves remaining is {:.2f}'.format(average)
+            )
 
 
 api = endpoints.api_server([GuessANumberApi])

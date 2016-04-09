@@ -2,7 +2,8 @@
 entities used by the Game. Because these classes are also regular Python
 classes they can include methods (such as 'to_form' and 'new_game')."""
 
-import random, logging
+import logging
+import random
 from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
@@ -11,7 +12,7 @@ from google.appengine.ext import ndb
 class User(ndb.Model):
     """User profile"""
     name = ndb.StringProperty(required=True)
-    email =ndb.StringProperty()
+    email = ndb.StringProperty()
 
 
 class Game(ndb.Model):
@@ -50,9 +51,9 @@ class Game(ndb.Model):
         word = correct_length_words[pick_line].rstrip('\n')
         # set correct guesses to be the same number of underscores as the words
         # otherwise the first letter guessed will cause an error because
-        # correct_letters is None in datastore,but it is expected to be a string
+        # correct_letters is None in datastore
+        # but it is expected to be a string
         correct_letters = "_ " * len(word)
-
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 8, or 12')
@@ -61,12 +62,12 @@ class Game(ndb.Model):
                             'Maximum letters must be greater \
                             than minimum letters.'
             )
-        game = Game(parent = user,
+        game = Game(parent=user,
                     user=user,
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
-                    correct_letters = correct_letters,
+                    correct_letters=correct_letters,
                     game_over=False)
         game.put()
         return game
@@ -141,17 +142,18 @@ class UserRank(ndb.Model):
         wins = 0
         # count games/wins for this difficulty level
         for game in all_games_played:
-            if game.difficulty==difficulty:
+            if game.difficulty == difficulty:
                 games_this_difficulty_level += 1
-                if game.won==True:
+                if game.won is True:
                     wins += 1
 
-        win_percentage = int((float(wins) / games_this_difficulty_level) * 1000)
+        win_percentage = \
+            int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
-                            ndb.AND(UserRank.user_name==user,
-                                ndb.AND(UserRank.difficulty==difficulty)
-                            )).get()
-        if rank == None:
+                            ndb.AND(UserRank.user_name == user,
+                                    ndb.AND(UserRank.difficulty == difficulty))
+                             ).get()
+        if rank is None:
             # rank is empty, create it
             rank = UserRank(
                             user_name=user,
@@ -175,9 +177,11 @@ class GameForm(messages.Message):
     message = messages.StringField(6, required=True)
     user_name = messages.StringField(7, required=True)
 
+
 class GameKeys(messages.Message):
     """Return keys of unfinished games per user."""
     keys = messages.StringField(1, repeated=True)
+
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""
@@ -217,13 +221,16 @@ class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     message = messages.StringField(1, required=True)
 
+
 class UserRankForm(messages.Message):
     user_name = messages.StringField(1, required=True)
     difficulty = messages.StringField(3, required=True)
     performance = messages.IntegerField(2, required=True)
 
+
 class UserRankForms(messages.Message):
     rankings = messages.MessageField(UserRankForm, 1, repeated=True)
+
 
 class GameHistoryForm(messages.Message):
     """StringMessage-- outbound (single) string message"""

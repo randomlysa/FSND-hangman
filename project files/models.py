@@ -30,7 +30,7 @@ class Game(ndb.Model):
     @classmethod
     def new_game(cls, user, attempts, min_letters, max_letters):
         """Creates and returns a new game"""
-        valid_attempts_allowed = [6, 8, 12]
+        valid_attempts_allowed = [6, 9, 12]
 
         # pick random word from file, with correct length
         # https://github.com/first20hours/google-10000-english
@@ -56,7 +56,7 @@ class Game(ndb.Model):
         correct_letters = "_ " * len(word)
 
         if attempts not in valid_attempts_allowed:
-            raise ValueError('Attempts allowed must be 6, 8, or 12')
+            raise ValueError('Attempts allowed must be 6, 9, or 12')
         if max_letters < min_letters:
             raise ValueError(
                             'Maximum letters must be greater \
@@ -187,7 +187,7 @@ class NewGameForm(messages.Message):
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
     # target = messages.StringField(2)
-    attempts = messages.IntegerField(2, default=8)
+    attempts = messages.IntegerField(2, default=9)
     min_letters = messages.IntegerField(3, default=6)
     max_letters = messages.IntegerField(4, default=12)
 

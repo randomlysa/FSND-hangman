@@ -72,7 +72,7 @@ class GuessANumberApi(remote.Service):
             )
         except ValueError:
             raise endpoints.BadRequestException(
-                'Attempts must be 6, 8, or 12!'
+                'Attempts must be 6, 9, or 12!'
             )
 
         # Use a task queue to update the average attempts remaining.
@@ -150,10 +150,10 @@ class GuessANumberApi(remote.Service):
         int_difficulty = game.attempts_allowed
         if int_difficulty == 6:
             set_difficulty = 'hard'
-        elif int_difficulty == 8:
+        elif int_difficulty == 9:
             set_difficulty = 'medium'
         elif int_difficulty == 12:
-            set_difficulty = 'low'
+            set_difficulty = 'easy'
         # set up scoring
         if Score.query(ancestor=game.key).get() == None:
             score = Score(

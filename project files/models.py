@@ -77,11 +77,27 @@ class Game(ndb.Model):
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
+        form.attempts_allowed = self.attempts_allowed
         form.attempts_remaining = self.attempts_remaining
         form.correct_letters = self.correct_letters
         form.incorrect_letters = self.incorrect_letters
         form.game_over = self.game_over
         form.message = message
+        # convert attempts_remaining to body_parts to be drawn
+        if form.attempts_allowed == 6:
+            body_parts = ['head', 'body', 'left leg', 'right leg', 'left hand',
+                'right hand']
+        elif form.attempts_allowed == 9:
+            body_parts = ['head', 'eyes', 'ears', 'hair', 'body', 'left leg',
+                'right leg', 'left hand', 'right hand']
+        elif form.attempts_allowed == 12:
+            body_parts = ['head', 'left eye', 'right eye', 'mouth', 'nose',
+            'left ear', 'right ear', 'body', 'left leg', 'right leg',
+            'left hand', 'right hand']
+        # count incorrect guesses so we know how many body parts to draw/return
+        incorrect_guesses = form.attempts_allowed - form.attempts_remaining
+        form.body_parts = str(body_parts[0:incorrect_guesses])
+
         return form
 
     def end_game(self, won=False):
@@ -170,12 +186,14 @@ class UserRank(ndb.Model):
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)
-    attempts_remaining = messages.IntegerField(2, required=True)
-    correct_letters = messages.StringField(3)
-    incorrect_letters = messages.StringField(4)
-    game_over = messages.BooleanField(5, required=True)
-    message = messages.StringField(6, required=True)
-    user_name = messages.StringField(7, required=True)
+    attempts_allowed = messages.IntegerField(3, required=True)
+    attempts_remaining = messages.IntegerField(4, required=True)
+    correct_letters = messages.StringField(5)
+    incorrect_letters = messages.StringField(6)
+    game_over = messages.BooleanField(7, required=True)
+    message = messages.StringField(8, required=True)
+    user_name = messages.StringField(9, required=True)
+    body_parts = messages.StringField(10)
 
 
 class GameKeys(messages.Message):

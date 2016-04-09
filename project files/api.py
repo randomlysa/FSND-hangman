@@ -347,7 +347,8 @@ class GuessANumberApi(remote.Service):
                       http_method='GET')
     def get_scores(self, request):
         """Return all scores"""
-        return ScoreForms(items=[score.to_form() for score in Score.query()])
+        scores = Score.query(Score.complete == True)
+        return ScoreForms(items=[score.to_form() for score in scores])
 
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=ScoreForms,

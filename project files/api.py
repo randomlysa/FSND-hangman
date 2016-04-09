@@ -359,7 +359,7 @@ class GuessANumberApi(remote.Service):
                       name='get_high_scores',
                       http_method='GET')
     def get_high_scores(self, request):
-        """Return high scores ---"""
+        """Return high scores for all difficulty levels"""
         high_scores = \
             Score.query(Score.complete == True)\
             .order(-Score.score)\
@@ -371,8 +371,7 @@ class GuessANumberApi(remote.Service):
                       name='get_user_rankings',
                       http_method='GET')
     def get_user_rankings(self, request):
-        """Return user rankings (w/l%), grouped by difficulty."""
-
+        """Return user rankings (won/loss %), grouped by difficulty."""
         user_rank = \
             UserRank.query()\
             .order(UserRank.difficulty, -UserRank.performance)

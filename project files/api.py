@@ -112,7 +112,8 @@ class GuessANumberApi(remote.Service):
         games = Game.query(Game.user == user.key).fetch()
         gameKeys = []
         for game in games:
-            gameKeys.append(game.key.urlsafe())
+            if game.game_over == False and game.cancelled == False:
+                gameKeys.append(game.key.urlsafe())
         return GameKeys(keys=[key for key in gameKeys])
 
     @endpoints.method(request_message=GET_GAME_REQUEST,

@@ -123,7 +123,11 @@ class GuessANumberApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
 
         if game.game_over is not True and game.cancelled is not True:
+            attempts = int(game.attempts_remaining)
             game.cancelled = True
+            game.all_guesses.append("('guess': 'None', \
+                'result': 'Game Cancelled', \
+                'remaining': %d)" % game.attempts_remaining)
             game.put()
             return StringMessage(message="Game cancelled.")
         elif game.game_over is True:

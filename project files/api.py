@@ -89,7 +89,11 @@ class GuessANumberApi(remote.Service):
     def get_game(self, request):
         """Return the current game state."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
-        if game:
+        if game.cancelled:
+            return game.to_form('This game has been cancelled.')
+        elif game.game_over:
+            return game.to_form('This game has ended.')
+        elif game:
             return game.to_form('Time to make a move!')
         else:
             raise endpoints.NotFoundException('Game not found!')

@@ -27,6 +27,8 @@ MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     urlsafe_game_key=messages.StringField(1),)
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
+USERNAME_REQUEST = \
+    endpoints.ResourceContainer(user_name=messages.StringField(1))
 HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
         number_of_results=messages.IntegerField(1)
     )
@@ -98,7 +100,7 @@ class GuessANumberApi(remote.Service):
         else:
             raise endpoints.NotFoundException('Game not found!')
 
-    @endpoints.method(request_message=USER_REQUEST,
+    @endpoints.method(request_message=USERNAME_REQUEST,
                       response_message=GameKeys,
                       path='get_user_games',
                       name='get_user_games',
@@ -350,7 +352,7 @@ class GuessANumberApi(remote.Service):
         scores = Score.query(Score.complete == True)
         return ScoreForms(items=[score.to_form() for score in scores])
 
-    @endpoints.method(request_message=USER_REQUEST,
+    @endpoints.method(request_message=USERNAME_REQUEST,
                       response_message=ScoreForms,
                       path='scores/user/{user_name}',
                       name='get_user_scores',

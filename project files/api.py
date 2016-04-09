@@ -130,7 +130,7 @@ class GuessANumberApi(remote.Service):
                 message="You cannot cancel a game that is over."
             )
         elif game.cancelled is True:
-            raise endpoints.BadRequestException\(
+            raise endpoints.BadRequestException(
                 "This game is already canceled!"
             )
             return StringMessage(message="This game is already canceled!")

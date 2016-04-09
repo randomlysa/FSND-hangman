@@ -121,7 +121,7 @@ class GuessANumberApi(remote.Service):
         if game.game_over is not True and game.cancelled is not True:
             game.cancelled = True
             game.put()
-            return StringMessage(message="Game canceled.")
+            return StringMessage(message="Game cancelled.")
         elif game.game_over is True:
             raise endpoints.BadRequestException(
                 "You cannot cancel a game that is over."
@@ -131,9 +131,9 @@ class GuessANumberApi(remote.Service):
             )
         elif game.cancelled is True:
             raise endpoints.BadRequestException(
-                "This game is already canceled!"
+                "This game is already cancelled!"
             )
-            return StringMessage(message="This game is already canceled!")
+            return StringMessage(message="This game is already cancelled!")
         else:
             return StringMessage(message="Something odd happened!")
 

@@ -118,9 +118,9 @@ class GuessANumberApi(remote.Service):
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=StringMessage,
-                      path='cancel_game',
+                      path='user/cancel/{urlsafe_game_key}',
                       name='cancel_game',
-                      http_method='GET')
+                      http_method='POST')
     def cancel_game(self, request):
         """Cancel a non-completed game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
@@ -154,7 +154,7 @@ class GuessANumberApi(remote.Service):
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
-        """Makes a move. Returns a game state with message"""
+        """Guess a letter. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key == game.user).get()
         # convert attempts_allowed to a difficulty level
@@ -331,7 +331,7 @@ class GuessANumberApi(remote.Service):
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameHistoryForm,
-                      path='get_game_history',
+                      path='game/history/{urlsafe_game_key}',
                       name='get_game_history',
                       http_method='GET')
     def get_game_history(self, request):
@@ -355,7 +355,7 @@ class GuessANumberApi(remote.Service):
 
     @endpoints.method(request_message=USERNAME_REQUEST,
                       response_message=ScoreForms,
-                      path='scores/user/{user_name}',
+                      path='user/scores/{user_name}',
                       name='get_user_scores',
                       http_method='GET')
     def get_user_scores(self, request):
@@ -370,7 +370,7 @@ class GuessANumberApi(remote.Service):
 
     @endpoints.method(request_message=HIGH_SCORE_REQUEST,
                       response_message=ScoreForms,
-                      path='get_high_scores',
+                      path='highscores',
                       name='get_high_scores',
                       http_method='GET')
     def get_high_scores(self, request):
@@ -382,7 +382,7 @@ class GuessANumberApi(remote.Service):
         return ScoreForms(items=[score.to_form() for score in high_scores])
 
     @endpoints.method(response_message=UserRankForms,
-                      path='get_user_rankings',
+                      path='rankings',
                       name='get_user_rankings',
                       http_method='GET')
     def get_user_rankings(self, request):

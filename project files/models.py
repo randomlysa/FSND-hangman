@@ -196,7 +196,7 @@ class GameForm(messages.Message):
     body_parts = messages.StringField(10)
 
 
-class GameKeys(messages.Message):
+class GameKeysForm(messages.Message):
     """Return keys of unfinished games per user."""
     keys = messages.StringField(1, repeated=True)
 

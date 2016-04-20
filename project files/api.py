@@ -14,7 +14,7 @@ from google.appengine.ext import ndb
 
 
 from models import User, Game, Score
-from models import StringMessage, NewGameForm, GameForm, GameKeys, \
+from models import StringMessage, NewGameForm, GameForm, GameKeysForm, \
     MakeMoveForm, ScoreForms, UserRank, UserRankForm, UserRankForms, \
     GameHistoryForm
 from utils import get_by_urlsafe
@@ -101,8 +101,8 @@ class GuessANumberApi(remote.Service):
             raise endpoints.NotFoundException('Game not found!')
 
     @endpoints.method(request_message=USERNAME_REQUEST,
-                      response_message=GameKeys,
-                      path='get_user_games',
+                      response_message=GameKeysForm,
+                      path='user/{user_name}/games',
                       name='get_user_games',
                       http_method='GET')
     def get_user_games(self, request):

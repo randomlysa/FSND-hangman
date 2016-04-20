@@ -1,0 +1,31 @@
+Hangman Design
+
+Game model
+	- changed target from IntegerProperty to StringProperty 
+	- added correct_letters to hold correctly guessed letters
+	- added incorrect letters to hold correctly guessed letters
+	- added all_guesses to hold a history of the game
+	- added cancelled to mark a game as cancelled
+		
+Score model
+	- added complete to indicate that the score was from a complete game, since score were updated on a move-by-move basis.
+	- added total_guesses to count the number of (valid guesses **)
+	- added correct_guesses to count the number of correct guesses
+	- added incorrect_guesses to count the number of incorrect guesses
+	- added not_valid_guesses to count the number of not valid guesses
+	- added solved to indicate that a word had been correctly guessed 
+	- added difficulty to indicate the game difficulty (6, 9, or 12 guesses allowed)
+	- added score to hold the score (correct_guesses / total_guesses) **
+	
+UserRank model
+	I had almost finished writing the get_user_rankings endpoint without this model when I realized
+	it should be a lot more efficient to update a user's rank when a user finishes a game than to
+	calculate the rank for each user whenever the user's ranks are requested, especially for a large
+	number of users.
+	- added username
+	- added difficulty - each difficulty level is tracked separately
+	- added performance - the users won/loss percentage for this difficulty
+
+I had some difficulties working with None types from datastore, so I set some default values to work around this. This is specifically noted in lines 52-55 of models.py. I'm not sure why I had problem with this sometimes, and sometimes I did not.
+
+Several endpoints had to be updated after I set the score be updated after every guess. Previously the score was only stored for completed games. It might have been better to store the items needed for the score as a property 'game' and then calculate the score after each game. I don't know that there was any advantage to storing the scoring items under Score other than to keep Game from having a lot of properties and Score to have a few. 

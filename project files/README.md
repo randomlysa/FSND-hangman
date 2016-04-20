@@ -74,36 +74,36 @@ given time. Each game can be retrieved or played by using the path parameter
     - Returns: GameKeysForm.
     - Description: Returns websafe keys of all unfinished games by the user
 
-  - **cancel_game**
+ - **cancel_game**
      - Path: 'user/cancel/{urlsafe_game_key}'
      - Method: POST
      - Parameters: urlsafe_game_key
      - Returns: StringMessage.
      - Description: marks a non-completed game as canceled.
 
-   - **make_move**
-      - Path: 'game/{urlsafe_game_key}'
-      - Method: PUT
-      - Parameters: urlsafe_game_key, guess
-      - Returns: GameForm with new game state.
-      - Description: Accepts a 'guess' and returns the updated state of the game.
-      The score is updated after every move.
+ - **make_move**
+    - Path: 'game/{urlsafe_game_key}'
+    - Method: PUT
+    - Parameters: urlsafe_game_key, guess
+    - Returns: GameForm with new game state.
+    - Description: Accepts a 'guess' and returns the updated state of the game.
+    The score is updated after every move.
 
-   - **get_game_history**
-   - Path: 'game/history/{urlsafe_game_key}'
-   - Method: GET
-   - Parameters: urlsafe_game_key
-   - Returns: GameHistoryForm.
-   - Description: Returns a move-by-move history of a game.
+ - **get_game_history**
+    - Path: 'game/history/{urlsafe_game_key}'
+    - Method: GET
+    - Parameters: urlsafe_game_key
+    - Returns: GameHistoryForm.
+    - Description: Returns a move-by-move history of a game.
 
-   - **get_scores**
+ - **get_scores**
       - Path: 'scores'
       - Method: GET
       - Parameters: None
       - Returns: ScoreForms.
       - Description: Returns all Scores in the database (unordered).
 
-   - **get_user_scores**
+ - **get_user_scores**
      - Path: 'user/scores/{user_name}'
      - Method: GET
      - Parameters: user_name
@@ -111,7 +111,7 @@ given time. Each game can be retrieved or played by using the path parameter
      - Description: Returns all Scores recorded by the provided player (unordered).
      Will raise a NotFoundException if the User does not exist.
 
-   - **get_high_scores**
+ - **get_high_scores**
       - Path: 'highscores'
       - Method: GET
       - Parameters: number_of_results (optional)
@@ -128,7 +128,7 @@ given time. Each game can be retrieved or played by using the path parameter
       underscores for letters that have not been guessed, whether the game is
       over, a message, the game urlsafe_key, and the user name.
 
-   - **get_user_rankings**
+ - **get_user_rankings**
      - Path: 'rankings'
      - Method: GET
      - Parameters: None

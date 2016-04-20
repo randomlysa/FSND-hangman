@@ -175,10 +175,10 @@ given time. Each game can be retrieved or played by using the path parameter
     - Multiple ScoreForm container.
  - **StringMessage**
     - General purpose String container.
-  - **UserRankForm**
+ - **UserRankForm**
      - Representation of a user's rank (won/loss%) grouped by difficulty
       levels.
-  - **UserRankForms**
+ - **UserRankForms**
      - Multiple UserRanksForm container
-  - **GameHistoryForm**
+ - **GameHistoryForm**
     - Represents a move by move description of a game.

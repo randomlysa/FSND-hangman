@@ -15,23 +15,23 @@ A simple implementation of hangman. Each game begins with a random 'target'
 word with  a maximum number of 'attempts' allowed.
 'Guesses' are sent to the `make_move` endpoint which will reply
 with either:
-'You win' if you guess all the letters, or
-'you lose' if you run out of attempts,
+  * 'You win' if you guess all the letters, or
+  * 'Game over!' if you run out of attempts,
 whether the guessed letter was correct or not,
 as well messages for the following events:
 Empty guess, letter already correctly guessed, letter already incorrectly
 guessed, and more than one letter guessed.
 
 After any guess, the following information is returned:
-attempts_allowed,
-attempts_remaining,
-body_parts: items to be drawn based on incorrect guesses and difficulty level,
-correct_letters: the target word with correct letters shown and incorrect letters represented with an underscore,
-game_over - if the game is over,
-incorrect_letters,
-message: a message about the game or about the last guess,
-urlsafe_key - the urlsafe game key,
-and user_name.
+  * attempts_allowed,
+  * attempts_remaining,
+  * body_parts: items to be drawn based on incorrect guesses and difficulty level,
+  * correct_letters: the target word with correct letters shown and incorrect letters represented with an underscore,
+  * game_over - if the game is over,
+  * incorrect_letters,
+  * message: a message about the game or about the last guess,
+  * urlsafe_key - the urlsafe game key,
+  * user_name.
 
 Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter

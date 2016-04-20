@@ -18,12 +18,20 @@ with either:
 'You win' if you guess all the letters, or
 'you lose' if you run out of attempts,
 whether the guessed letter was correct or not,
-as well as the following other miscellaneous messages:
-Empty guess = "You didn't guess a letter!"
-Letter already correctly guessed: "You already correctly guessed this letter!"
-More than one letter guessed: "You cannot guess more than one letter at a time!""
-Incorrect guesses are not logged! You can guess the same incorrect letter as
-often as you want.
+as well messages for the following events:
+Empty guess, letter already correctly guessed, letter already incorrectly
+guessed, and more than one letter guessed.
+
+After any guess, the following information is returned:
+attempts_allowed,
+attempts_remaining,
+body_parts: items to be drawn based on incorrect guesses and difficulty level,
+correct_letters: the target word with correct letters shown and incorrect letters represented with an underscore,
+game_over - if the game is over,
+incorrect_letters,
+message: a message about the game or about the last guess,
+urlsafe_key - the urlsafe game key,
+and user_name.
 
 Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter
@@ -53,11 +61,62 @@ given time. Each game can be retrieved or played by using the path parameter
     - Returns: GameForm with initial game state.
     - Description: Creates a new Game. user_name provided must correspond to an
     existing user - will raise a NotFoundException if not.
-    Attempts must be 6 (hard), 8 (medium), or 12 (easy).
+    Attempts must be 6 (hard), 9 (medium), or 12 (easy).
     max_letters (default = 12) and min_letters (default = 6) specifies what
     length you want the target word to be.
     Also adds a task to a task queue to update the average moves remaining
     for active games.
+
+ - **get_user_games**
+    - Path: 'user/{user_name}/games'
+    - Method: GET
+    - Parameters: user_name, email
+    - Returns: GameKeysForm.
+    - Description: Returns websafe keys of all unfinished games by the user
+
+  - **cancel_game**
+     - Path: 'user/cancel/{urlsafe_game_key}'
+     - Method: POST
+     - Parameters: urlsafe_game_key
+     - Returns: StringMessage.
+     - Description: marks a non-completed game as canceled.
+
+   - **make_move**
+      - Path: 'game/{urlsafe_game_key}'
+      - Method: PUT
+      - Parameters: urlsafe_game_key, guess
+      - Returns: GameForm with new game state.
+      - Description: Accepts a 'guess' and returns the updated state of the game.
+      The score is updated after every move.
+
+   - **get_game_history**
+   - Path: 'game/history/{urlsafe_game_key}'
+   - Method: GET
+   - Parameters: urlsafe_game_key
+   - Returns: GameHistoryForm.
+   - Description: Returns a move-by-move history of a game.
+
+   - **get_scores**
+      - Path: 'scores'
+      - Method: GET
+      - Parameters: None
+      - Returns: ScoreForms.
+      - Description: Returns all Scores in the database (unordered).
+
+   - **get_user_scores**
+     - Path: 'user/scores/{user_name}'
+     - Method: GET
+     - Parameters: user_name
+     - Returns: ScoreForms.
+     - Description: Returns all Scores recorded by the provided player (unordered).
+     Will raise a NotFoundException if the User does not exist.
+
+   - **get_high_scores**
+      - Path: 'highscores'
+      - Method: GET
+      - Parameters: number_of_results (optional)
+      - Returns: ScoreForms.
+      - Description: Return high scores for all users for all difficulty levels
 
  - **get_game**
     - Path: 'game/{urlsafe_game_key}'
@@ -69,36 +128,21 @@ given time. Each game can be retrieved or played by using the path parameter
       underscores for letters that have not been guessed, whether the game is
       over, a message, the game urlsafe_key, and the user name.
 
- - **make_move**
-    - Path: 'game/{urlsafe_game_key}'
-    - Method: PUT
-    - Parameters: urlsafe_game_key, guess
-    - Returns: GameForm with new game state.
-    - Description: Accepts a 'guess' and returns the updated state of the game.
-    If this causes a game to end, a corresponding Score entity will be created.
+   - **get_user_rankings**
+     - Path: 'rankings'
+     - Method: GET
+     - Parameters: None
+     - Returns: UserRankForms.
+     - Description: Return user rankings (won/loss %), grouped by difficulty.
 
- - **get_scores**
-    - Path: 'scores'
-    - Method: GET
-    - Parameters: None
-    - Returns: ScoreForms.
-    - Description: Returns all Scores in the database (unordered).
-
- - **get_user_scores**
-    - Path: 'scores/user/{user_name}'
-    - Method: GET
-    - Parameters: user_name
-    - Returns: ScoreForms.
-    - Description: Returns all Scores recorded by the provided player (unordered).
-    Will raise a NotFoundException if the User does not exist.
-
- - **get_active_game_count**
-    - Path: 'games/active'
+ - **get_average_attempts_remaining**
+    - Path: 'games/average_attempts'
     - Method: GET
     - Parameters: None
     - Returns: StringMessage
     - Description: Gets the average number of attempts remaining for all games
     from a previously cached memcache key.
+
 
 ##Models Included:
  - **User**
@@ -108,20 +152,33 @@ given time. Each game can be retrieved or played by using the path parameter
     - Stores unique game states. Associated with User model via KeyProperty.
 
  - **Score**
-    - Records completed games. Associated with Users model via KeyProperty.
+    - Records completed games. Associated with User model via KeyProperty.
+
+- **UserRank**
+    - Stores user ranks for each difficulty. Associated with User model via
+      KeyProperty.
 
 ##Forms Included:
  - **GameForm**
     - Representation of a Game's state (urlsafe_key, attempts_remaining,
     correct guesses, game_over flag, message, user_name).
+ - **GameKeysForm**
+    - Used to return keys of unfinished games per user.
  - **NewGameForm**
     - Used to create a new game (user_name, target, attempts)
  - **MakeMoveForm**
     - Inbound make move form (guess).
  - **ScoreForm**
     - Representation of a completed game's Score (user_name, date, won flag,
-    guesses).
+    guesses, difficulty, and score for the game).
  - **ScoreForms**
     - Multiple ScoreForm container.
  - **StringMessage**
     - General purpose String container.
+  - **UserRankForm**
+     - Representation of a user's rank (won/loss%) grouped by difficulty
+      levels.
+  - **UserRankForms**
+     - Multiple UserRanksForm container
+  - **GameHistoryForm**
+    - Represents a move by move description of a game.

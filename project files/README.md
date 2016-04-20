@@ -37,6 +37,11 @@ Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
+##Playing the Game:
+  * Make a user using the create_user endpoint.
+  * Make a new game using the new_game endpoint.
+  * Guess letters using the make_move endpoint until you win or run out of guesses!
+
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.
  - app.yaml: App configuration.

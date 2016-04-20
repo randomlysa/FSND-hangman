@@ -17,10 +17,12 @@ word with  a maximum number of 'attempts' allowed.
 with either:
   * 'You win' if you guess all the letters, or
   * 'Game over!' if you run out of attempts,
-whether the guessed letter was correct or not,
-as well messages for the following events:
-Empty guess, letter already correctly guessed, letter already incorrectly
-guessed, and more than one letter guessed.
+  * whether the guessed letter was correct or not,
+  * as well messages for the following events:
+    * empty guess
+    * letter already correctly guessed,
+    * letter already incorrectly guessed,
+    * more than one letter guessed.
 
 After any guess, the following information is returned:
   * attempts_allowed,
@@ -38,9 +40,9 @@ given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
 ##Playing the Game:
-  * Make a user using the create_user endpoint.
-  * Make a new game using the new_game endpoint.
-  * Guess letters using the make_move endpoint until you win or run out of guesses!
+  * Make a user using the `create_user` endpoint.
+  * Make a new game using the `new_game` endpoint.
+  * Guess letters using the `make_move` endpoint until you win or run out of guesses!
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.

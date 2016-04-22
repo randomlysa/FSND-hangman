@@ -114,7 +114,7 @@ class Hangman(remote.Service):
         for game in games:
             if game.game_over == False and game.cancelled == False:
                 gameKeys.append(game.key.urlsafe())
-        return GameKeys(keys=[key for key in gameKeys])
+        return GameKeysForm(keys=[key for key in gameKeys])
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=StringMessage,

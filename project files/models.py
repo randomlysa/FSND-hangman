@@ -158,7 +158,7 @@ class UserRank(ndb.Model):
         wins = 0
         # count games/wins for this difficulty level
         for game in all_games_played:
-            if game.difficulty == difficulty:
+            if game.difficulty == difficulty and game.complete is True:
                 games_this_difficulty_level += 1
                 if game.won is True:
                     wins += 1

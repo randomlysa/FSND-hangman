@@ -35,11 +35,14 @@ class SendReminderEmail(webapp2.RequestHandler):
 
             # This will send test emails, the arguments to send_mail are:
             # from, to, subject, body
-
-            mail.send_mail('noreply@{}.appspotmail.com'.format(app_id),
-                           user.email,
-                           subject,
-                           body)
+            # check if the user has unfinished games
+            if unfinished > 0:
+                mail.send_mail(
+                    'noreply@{}.appspotmail.com'.format(app_id),
+                    user.email,
+                    subject,
+                    body
+                )
 
 
 class UpdateAverageMovesRemaining(webapp2.RequestHandler):

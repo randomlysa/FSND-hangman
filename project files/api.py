@@ -274,6 +274,7 @@ class HangmanApi(remote.Service):
         # a letter was guessed correctly!
         elif guess in game.target_word:
             # save and log the correct guess so the target word can be revealed
+            game.correct_letters += guess
             score.correct_guesses = correct_guesses + 1
             score.put()
             game.target_revealed = reveal_word(guess)

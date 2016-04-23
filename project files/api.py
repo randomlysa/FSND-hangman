@@ -198,7 +198,7 @@ class HangmanApi(remote.Service):
 
         # make the guess lowercase, to be safe.
         guess = request.guess.lower()
-        target = game.target
+        target = game.target_word
         targetLower = target.lower()
         # set game.target_revealed to be a string
         if game.target_revealed is None:
@@ -208,8 +208,8 @@ class HangmanApi(remote.Service):
 
         def reveal_word(guess=''):
             """
-                convert 'target' word into word with correctly guessed letters
-                and underscores for unguessed letters
+                convert 'target_word' into a string with correctly guessed
+                letters and underscores for unguessed letters
             """
             show_target_list = []
             i = 0  # keep track of what letter we are on / to replace
@@ -244,7 +244,7 @@ class HangmanApi(remote.Service):
         # first, allow solving
         if guess == targetLower:
             game.end_game(True)
-            target_revealed = target
+            target_revealed = target_word
             score.solved=True
             score.won=True
             score.complete = True

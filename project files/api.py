@@ -131,7 +131,7 @@ class Hangman(remote.Service):
             attempts = int(game.attempts_remaining)
             game.cancelled = True
             # note in the game history that the game has been cancelled
-            game.all_guesses.append("('guess': 'None', \
+            game.game_history.append("('guess': 'None', \
                 'result': 'Game Cancelled', \
                 'remaining': %d)" % game.attempts_remaining)
             game.put()
@@ -307,15 +307,15 @@ class Hangman(remote.Service):
         # end evaluating guesses
         # here I can put things that can be run on any guess
 
-        # save msg and guess to game.all_guesses for get_game_history
+        # save msg and guess to game.game_history for get_game_history
         # set the message for game history
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (
                     guess, msg, game.attempts_remaining
         )
-        if game.all_guesses is None:
-            game.all_guesses = history
+        if game.game_history is None:
+            game.game_history = history
         else:
-            game.all_guesses.append(history)
+            game.game_history.append(history)
 
         if game.attempts_remaining < 1:
             # this is game over, you have run out of guesses
@@ -342,8 +342,8 @@ class Hangman(remote.Service):
     def get_game_history(self, request):
         """Return a move-by-move history of a game."""
         game = ndb.Key(urlsafe=request.urlsafe_game_key).get()
-        # convert game.all_guesses from list to string
-        history = ', '.join(x for x in game.all_guesses)
+        # convert game.game_history from list to string
+        history = ', '.join(x for x in game.game_history)
         gh = GameHistoryForm()
         gh.history = history
         gh.check_initialized()

@@ -19,7 +19,7 @@ class Game(ndb.Model):
     target = ndb.StringProperty()
     correct_letters = ndb.StringProperty()
     incorrect_letters = ndb.StringProperty(default='')
-    all_guesses = ndb.StringProperty(repeated=True)
+    game_history = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
     attempts_remaining = ndb.IntegerProperty(required=True, default=6)
     cancelled = ndb.BooleanProperty(required=True, default=False)

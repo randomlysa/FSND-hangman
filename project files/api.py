@@ -39,7 +39,7 @@ MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
 
 @endpoints.api(name='hangman', version='v1')
-class Hangman(remote.Service):
+class HangmanApi(remote.Service):
     """Game API"""
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=StringMessage,
@@ -423,4 +423,4 @@ class Hangman(remote.Service):
             )
 
 
-api = endpoints.api_server([Hangman])
+api = endpoints.api_server([HangmanApi])

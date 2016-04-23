@@ -278,10 +278,9 @@ class HangmanApi(remote.Service):
             score.correct_guesses = correct_guesses + 1
             score.put()
             game.target_revealed = reveal_word(guess)
-            # check if this letter completed the word
-            reveal_word_solve = game.target_revealed
             # check if this letter solved the word
-            if reveal_word_solve == target:
+            if game.target_revealed == target:
+                # mark game.game_over = True and game.won = True
                 game.end_game(True)
                 score.won = True
                 score.complete = True

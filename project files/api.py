@@ -302,10 +302,7 @@ class HangmanApi(remote.Service):
             score.incorrect_guesses = incorrect_guesses + 1
             score.put()
             msg = 'Incorrect! That letter is not in the word.'
-            if game.incorrect_letters == '':
-                game.incorrect_letters = guess
-            else:
-                game.incorrect_letters += guess
+            game.incorrect_letters += guess
             game.attempts_remaining -= 1
         # end evaluating guesses
 

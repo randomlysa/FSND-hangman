@@ -17,7 +17,8 @@ class User(ndb.Model):
 class Game(ndb.Model):
     """Game object"""
     target = ndb.StringProperty()
-    correct_letters = ndb.StringProperty()
+    target_revealed = ndb.StringProperty(default='')
+    correct_letters = ndb.StringProperty(default='')
     incorrect_letters = ndb.StringProperty(default='')
     game_history = ndb.StringProperty(repeated=True)
     attempts_allowed = ndb.IntegerProperty(required=True)
@@ -52,11 +53,9 @@ class Game(ndb.Model):
         # used for this hangman game.
         pick_line = random.randrange(0, max_lines_correct_length_words)
         word = correct_length_words[pick_line].rstrip('\n')
-        # set correct guesses to be the same number of underscores as the words
-        # otherwise the first letter guessed will cause an error because
-        # correct_letters is None in datastore
-        # but it is expected to be a string
-        correct_letters = "_ " * len(word)
+        # set target_revealed to be the same number of underscores as the number
+        # of letters in the word
+        target_revealed = "_ " * len(word)
 
         if attempts not in valid_attempts_allowed:
             raise ValueError('Attempts allowed must be 6, 9, or 12')
@@ -70,7 +69,7 @@ class Game(ndb.Model):
                     target=word,
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
-                    correct_letters=correct_letters,
+                    target_revealed=target_revealed,
                     game_over=False)
         game.put()
         return game
@@ -201,12 +200,13 @@ class GameForm(messages.Message):
     urlsafe_key = messages.StringField(1, required=True)
     attempts_allowed = messages.IntegerField(3, required=True)
     attempts_remaining = messages.IntegerField(4, required=True)
-    correct_letters = messages.StringField(5)
-    incorrect_letters = messages.StringField(6)
-    game_over = messages.BooleanField(7, required=True)
-    message = messages.StringField(8, required=True)
-    user_name = messages.StringField(9, required=True)
-    body_parts = messages.StringField(10)
+    target_revealed = messages.StringField(5)
+    correct_letters = messages.StringField(6)
+    incorrect_letters = messages.StringField(7)
+    game_over = messages.BooleanField(8, required=True)
+    message = messages.StringField(9, required=True)
+    user_name = messages.StringField(10, required=True)
+    body_parts = messages.StringField(11)
 
 
 class GameKeysForm(messages.Message):

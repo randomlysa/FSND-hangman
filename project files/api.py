@@ -200,11 +200,11 @@ class Hangman(remote.Service):
         guess = request.guess.lower()
         target = game.target
         targetLower = target.lower()
-        # set game.correct_letters to be a string
-        if game.correct_letters is None:
-            correct_letters = ''
+        # set game.target_revealed to be a string
+        if game.target_revealed is None:
+            target_revealed = ''
         else:
-            correct_letters = game.correct_letters
+            target_revealed = game.target_revealed
 
         def reveal_word(guess=''):
             """
@@ -223,7 +223,7 @@ class Hangman(remote.Service):
                     # to show_target_list
                     show_target_list.append(guess)
                     i += 1
-                elif letter in correct_letters:
+                elif letter in target_revealed:
                     # append previously correctly guessed letter(s)
                     # to show_target
                     show_target_list.append(letter)
@@ -244,7 +244,7 @@ class Hangman(remote.Service):
         # first, allow solving
         if guess == targetLower:
             game.end_game(True)
-            correct_letters = target
+            target_revealed = target
             score.solved=True
             score.won=True
             score.complete = True
@@ -265,7 +265,7 @@ class Hangman(remote.Service):
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in game.incorrect_letters:
                 msg = "You already incorrectly guessed this letter!"
-        elif guess in correct_letters:
+        elif guess in target_revealed:
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = "You already correctly guessed this letter!"
@@ -274,9 +274,9 @@ class Hangman(remote.Service):
             # save and log the correct guess so the target word can be revealed
             score.correct_guesses = correct_guesses + 1
             score.put()
-            game.correct_letters = reveal_word(guess)
+            game.target_revealed = reveal_word(guess)
             # check if this letter completed the word
-            reveal_word_solve = game.correct_letters
+            reveal_word_solve = game.target_revealed
             # check if this letter solved the word
             if reveal_word_solve == target:
                 game.end_game(True)

@@ -255,6 +255,7 @@ class HangmanApi(remote.Service):
                         'You solved the puzzle! The correct word is: ' + target
             )
         """
+        # handle miscellaneous errors/mistakes
         if len(guess) == 0:
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
@@ -269,8 +270,9 @@ class HangmanApi(remote.Service):
             score.not_valid_guesses = not_valid_guesses + 1
             score.put()
             msg = "You already correctly guessed this letter!"
-        # a letter was guessed correctly
-        elif guess in game.target:
+
+        # a letter was guessed correctly!
+        elif guess in game.target_word:
             # save and log the correct guess so the target word can be revealed
             score.correct_guesses = correct_guesses + 1
             score.put()
@@ -292,9 +294,10 @@ class HangmanApi(remote.Service):
                 score.put()
                 UserRank.set_user_rank(user.key, difficulty)
                 return game.to_form('You win!')
+            # the guess was correct but did not solve the word
             else:
                 msg = 'Correct! Guess another letter.'
-                # game.correct_letters = reveal_word()
+        # a letter was guessed incorrectly
         else:
             score.incorrect_guesses = incorrect_guesses + 1
             score.put()
@@ -305,8 +308,8 @@ class HangmanApi(remote.Service):
                 game.incorrect_letters += guess
             game.attempts_remaining -= 1
         # end evaluating guesses
-        # here I can put things that can be run on any guess
 
+        # here I can put things that can be run on any guess
         # save msg and guess to game.game_history for get_game_history
         # set the message for game history
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (

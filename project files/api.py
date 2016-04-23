@@ -208,28 +208,30 @@ class Hangman(remote.Service):
                 convert 'target' word into word with correctly guessed letters
                 and underscores for unguessed letters
             """
-            # logging.info(target)
-            show_target = []
-            # logging.info(show_target)
+            show_target_list = []
             i = 0  # keep track of what letter we are on / to replace
+            # build the revealed word using correctly guessed letters and
+            # underscores for not guessed letters
             for letter in targetLower:
+                # if this letter in the target word is the same as the letter
+                # that was just guessed
                 if letter == guess:
                     # append currently correctly guessed letter
-                    # to target_revealed
-                    show_target.append(guess)
+                    # to show_target_list
+                    show_target_list.append(guess)
                     i += 1
                 elif letter in correct_letters:
                     # append previously correctly guessed letter(s)
-                    # to target_revealed
-                    show_target.append(letter)
+                    # to show_target
+                    show_target_list.append(letter)
                     i += 1
                 else:
                     # otherwise append an underscore '_'
-                    show_target.append(" _ ")
+                    show_target_list.append(" _ ")
                     i += 1
-            # convert show_target (list with correct letters and underscores)
-            # into a string
-            show_target_string = ''.join(x for x in show_target)
+            # convert show_target_list (list with correct letters and
+            # underscores) into a string
+            show_target_string = ''.join(x for x in show_target_list)
             # set the revealed word in datastore
             game.correct_guesses = show_target_string
             return show_target_string

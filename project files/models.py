@@ -4,7 +4,6 @@ classes they can include methods (such as 'to_form' and 'new_game')."""
 
 import logging
 import random
-from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
 
@@ -46,7 +45,11 @@ class Game(ndb.Model):
                 correct_length_words.append(word)
 
         # now we are working with a list of words that are the correct length
+        # get the number of 'correct length words' this will be the upper
+        # range for randrange.
         max_lines_correct_length_words = len(correct_length_words)
+        # assign a random number to pick_line. this will be the word that is
+        # used for this hangman game.
         pick_line = random.randrange(0, max_lines_correct_length_words)
         word = correct_length_words[pick_line].rstrip('\n')
         # set correct guesses to be the same number of underscores as the words
@@ -59,9 +62,9 @@ class Game(ndb.Model):
             raise ValueError('Attempts allowed must be 6, 9, or 12')
         if max_letters < min_letters:
             raise ValueError(
-                            'Maximum letters must be greater \
-                            than minimum letters.'
+                'Maximum letters must be greater than minimum letters.'
             )
+        # create the game and save it to datastore.
         game = Game(parent=user,
                     user=user,
                     target=word,
@@ -85,22 +88,29 @@ class Game(ndb.Model):
         form.message = message
         # convert attempts_remaining to body_parts to be drawn
         if form.attempts_allowed == 6:
-            body_parts = ['head', 'body', 'left leg', 'right leg', 'left hand',
-                'right hand']
+            body_parts = [
+                'head', 'body', 'left leg', 'right leg', 'left hand',
+                'right hand'
+            ]
         elif form.attempts_allowed == 9:
-            body_parts = ['head', 'eyes', 'ears', 'hair', 'body', 'left leg',
-                'right leg', 'left hand', 'right hand']
+            body_parts = [
+                'head', 'eyes', 'ears', 'hair', 'body', 'left leg',
+                'right leg', 'left hand', 'right hand'
+            ]
         elif form.attempts_allowed == 12:
-            body_parts = ['head', 'left eye', 'right eye', 'mouth', 'nose',
-            'left ear', 'right ear', 'body', 'left leg', 'right leg',
-            'left hand', 'right hand']
+            body_parts = [
+                'head', 'left eye', 'right eye', 'mouth', 'nose',
+                'left ear', 'right ear', 'body', 'left leg', 'right leg',
+                'left hand', 'right hand'
+            ]
+
         # count incorrect guesses so we know how many body parts to draw/return
         incorrect_guesses = form.attempts_allowed - form.attempts_remaining
         form.body_parts = str(body_parts[0:incorrect_guesses])
 
         return form
 
-    def end_game(self, won=False):
+    def end_game(self):
         """Ends the game - if won is True, the player won. - if won is False,
         the player lost."""
         self.game_over = True
@@ -113,6 +123,8 @@ class Score(ndb.Model):
     date = ndb.DateProperty(required=True)
     won = ndb.BooleanProperty(required=True)
     complete = ndb.BooleanProperty(required=True)
+    # Score counts how many of each type of guess there are, Game saves the
+    # actual guesses (letters)
     total_guesses = ndb.IntegerProperty(required=True, default=0)
     correct_guesses = ndb.IntegerProperty(default=0)
     incorrect_guesses = ndb.IntegerProperty(default=0)
@@ -122,18 +134,19 @@ class Score(ndb.Model):
     score = ndb.IntegerProperty(default=0)
 
     def to_form(self):
-        return ScoreForm(user_name=self.user_name.get().name,
-                         date=str(self.date),
-                         won=self.won,
-                         complete=self.complete,
-                         total_guesses=self.total_guesses,
-                         correct_guesses=self.correct_guesses,
-                         incorrect_guesses=self.incorrect_guesses,
-                         not_valid_guesses=self.not_valid_guesses,
-                         solved=self.solved,
-                         difficulty=self.difficulty,
-                         score=self.score
-                         )
+        return ScoreForm(
+            user_name=self.user_name.get().name,
+            date=str(self.date),
+            won=self.won,
+            complete=self.complete,
+            total_guesses=self.total_guesses,
+            correct_guesses=self.correct_guesses,
+            incorrect_guesses=self.incorrect_guesses,
+            not_valid_guesses=self.not_valid_guesses,
+            solved=self.solved,
+            difficulty=self.difficulty,
+            score=self.score
+        )
 
 
 class UserRank(ndb.Model):
@@ -166,16 +179,16 @@ class UserRank(ndb.Model):
         win_percentage = \
             int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
-                            ndb.AND(UserRank.user_name == user,
-                                    ndb.AND(UserRank.difficulty == difficulty))
-                             ).get()
+                ndb.AND(UserRank.user_name == user,
+                    ndb.AND(UserRank.difficulty == difficulty))
+            ).get()
         if rank is None:
-            # rank is empty, create it
+            # rank is empty, create and save it
             rank = UserRank(
-                            user_name=user,
-                            difficulty=difficulty,
-                            performance=win_percentage
-                            )
+                user_name=user,
+                difficulty=difficulty,
+                performance=win_percentage
+            )
             rank.put()
         else:
             # rank exists. update it.

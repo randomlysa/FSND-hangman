@@ -189,7 +189,7 @@ class HangmanApi(remote.Service):
         not_valid_guesses = score.not_valid_guesses
         total_guesses = correct_guesses + incorrect_guesses
         # needed for UserRank.set_user_rank
-        difficulty = score.difficulty
+        difficulty = set_difficulty
 
         if game.game_over:
             return game.to_form('Game already over!')

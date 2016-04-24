@@ -277,9 +277,12 @@ class HangmanApi(remote.Service):
         else:
             game.game_history.append(history)
 
+        # check if the user has run out of attempts
         if game.attempts_remaining < 1:
+            # set game.game_over = True and game.won = False
             game.end_game(False)
             return game.to_form(msg + ' Game over!')
+        # still attempts remaining. keep playing!
         else:
             game.put()
             return game.to_form(msg)

@@ -168,26 +168,7 @@ class HangmanApi(remote.Service):
             set_difficulty = 'medium'
         elif int_difficulty == 12:
             set_difficulty = 'easy'
-        # set up scoring
-        if Score.query(ancestor=game.key).get() == None:
-            score = Score(
-                parent=game.key,
-                user_name=user.key,
-                date=date.today(),
-                won=False,
-                complete=False,
-                total_guesses=0,
-                difficulty=set_difficulty
-            )
-            score.put()
 
-        score = Score.query(ancestor=game.key).get()
-        # get these from datastore so they can be updated
-        # total_guesses = score.total_guesses
-        correct_guesses = score.correct_guesses
-        incorrect_guesses = score.incorrect_guesses
-        not_valid_guesses = score.not_valid_guesses
-        total_guesses = correct_guesses + incorrect_guesses
         # needed for UserRank.set_user_rank
         difficulty = set_difficulty
 
@@ -257,50 +238,29 @@ class HangmanApi(remote.Service):
         """
         # handle miscellaneous errors/mistakes
         if len(guess) == 0:
-            score.not_valid_guesses = not_valid_guesses + 1
-            score.put()
             msg = "You didn't guess a letter!"
         elif len(guess) > 1:
-            score.not_valid_guesses = not_valid_guesses + 1
-            score.put()
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in game.incorrect_letters:
                 msg = "You already incorrectly guessed this letter!"
         elif guess in target_revealed:
-            score.not_valid_guesses = not_valid_guesses + 1
-            score.put()
             msg = "You already correctly guessed this letter!"
 
         # a letter was guessed correctly!
         elif guess in game.target_word:
             # save and log the correct guess so the target word can be revealed
             game.correct_letters += guess
-            score.correct_guesses = correct_guesses + 1
-            score.put()
             game.target_revealed = reveal_word(guess)
             # check if this letter solved the word
             if game.target_revealed == target:
                 # mark game.game_over = True and game.won = True
                 game.end_game(True)
-                score.won = True
-                score.complete = True
-                # update score with % of guesses being correct
-                # add 1 to correct guesses and total_guesses since neither has
-                # been updated/retrived for this guess.
-                setScore = int(
-                    (float(correct_guesses + 1) / (total_guesses + 1)) * 1000
-                    )
-                score.score = setScore
-                score.put()
-                UserRank.set_user_rank(user.key, difficulty)
                 return game.to_form('You win!')
             # the guess was correct but did not solve the word
             else:
                 msg = 'Correct! Guess another letter.'
         # a letter was guessed incorrectly
         else:
-            score.incorrect_guesses = incorrect_guesses + 1
-            score.put()
             msg = 'Incorrect! That letter is not in the word.'
             game.incorrect_letters += guess
             game.attempts_remaining -= 1
@@ -318,17 +278,7 @@ class HangmanApi(remote.Service):
             game.game_history.append(history)
 
         if game.attempts_remaining < 1:
-            # this is game over, you have run out of guesses
-            score.complete = True
-            # update score with % of guesses being correct
-            # add +1 to the value we got from datastore for total_guesses
-            setScore = int(
-                (float(correct_guesses) / (total_guesses + 1)) * 1000
-                )
-            score.score = setScore
-            score.put()
             game.end_game(False)
-            UserRank.set_user_rank(user.key, difficulty)
             return game.to_form(msg + ' Game over!')
         else:
             game.put()

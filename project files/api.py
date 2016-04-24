@@ -160,6 +160,7 @@ class HangmanApi(remote.Service):
         """Guess a letter. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key == game.user).get()
+        user_urlsafe = user.key.urlsafe()
         # convert attempts_allowed to a difficulty level
         int_difficulty = game.attempts_allowed
         if int_difficulty == 6:
@@ -225,6 +226,10 @@ class HangmanApi(remote.Service):
         # first, allow solving
         if guess == targetLower:
             game.end_game(True)
+            # set game.game_over = True and game.won = True
+            game.end_game(
+                request.urlsafe_game_key, user_urlsafe, True, difficulty
+            )
             target_revealed = target_word
             score.solved=True
             score.won=True
@@ -252,9 +257,11 @@ class HangmanApi(remote.Service):
             game.correct_letters += guess
             game.target_revealed = reveal_word(guess)
             # check if this letter solved the word
-            if game.target_revealed == target:
-                # mark game.game_over = True and game.won = True
-                game.end_game(True)
+            if game.target_revealed == target_word:
+                # set game.game_over = True and game.won = True
+                game.end_game(
+                    request.urlsafe_game_key, user_urlsafe, True, difficulty
+                )
                 return game.to_form('You win!')
             # the guess was correct but did not solve the word
             else:
@@ -280,7 +287,9 @@ class HangmanApi(remote.Service):
         # check if the user has run out of attempts
         if game.attempts_remaining < 1:
             # set game.game_over = True and game.won = False
-            game.end_game(False)
+            game.end_game(
+                request.urlsafe_game_key, user_urlsafe, False, difficulty
+            )
             return game.to_form(msg + ' Game over!')
         # still attempts remaining. keep playing!
         else:

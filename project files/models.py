@@ -4,6 +4,7 @@ classes they can include methods (such as 'to_form' and 'new_game')."""
 
 import logging
 import random
+from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
 
@@ -113,41 +114,46 @@ class Game(ndb.Model):
 
         return form
 
-    def end_game(self, result):
-        """Ends the game - if won is True, the player won. - if won is False,
-        the player lost."""
+    def end_game(self, game, user, result, difficulty):
+        """Ends the game and sets the score.
+        If result is True, the player won.
+        If result is False, the player lost."""
         self.won = result
         self.game_over = True
-        self.put()
+
+        # calculate the score
+        setScore = int(
+            (
+                float(len(self.correct_letters)) / (len(self.correct_letters) + len(self.incorrect_letters)) * 1000
+            )
+        )
+
+        user_key = ndb.Key(urlsafe=user)
+        game_key = ndb.Key(urlsafe=game)
+
+        # set the score
+        score = Score(
+            # game is the parent
+            parent=game_key,
+            user_key=user_key,
+            difficulty=difficulty,
+            score=setScore,
+            date=date.today()
+        )
+        score.put()
 
 
 class Score(ndb.Model):
     """Score object"""
-    user_name = ndb.KeyProperty(required=True, kind='User')
+    user_key = ndb.KeyProperty(required=True, kind='User')
     date = ndb.DateProperty(required=True)
-    won = ndb.BooleanProperty(required=True)
-    complete = ndb.BooleanProperty(required=True)
-    # Score counts how many of each type of guess there are, Game saves the
-    # actual guesses (letters)
-    total_guesses = ndb.IntegerProperty(required=True, default=0)
-    correct_guesses = ndb.IntegerProperty(default=0)
-    incorrect_guesses = ndb.IntegerProperty(default=0)
-    not_valid_guesses = ndb.IntegerProperty(default=0)
-    solved = ndb.BooleanProperty(default=False)
     difficulty = ndb.StringProperty()
     score = ndb.IntegerProperty(default=0)
 
     def to_form(self):
         return ScoreForm(
-            user_name=self.user_name.get().name,
+            user_key=self.user_key,
             date=str(self.date),
-            won=self.won,
-            complete=self.complete,
-            total_guesses=self.total_guesses,
-            correct_guesses=self.correct_guesses,
-            incorrect_guesses=self.incorrect_guesses,
-            not_valid_guesses=self.not_valid_guesses,
-            solved=self.solved,
             difficulty=self.difficulty,
             score=self.score
         )

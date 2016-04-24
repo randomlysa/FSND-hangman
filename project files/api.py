@@ -180,8 +180,8 @@ class HangmanApi(remote.Service):
 
         # make the guess lowercase, to be safe.
         guess = request.guess.lower()
-        target = game.target_word
-        targetLower = target.lower()
+        target_word = game.target_word
+        targetLower = target_word.lower()
         # set game.target_revealed to be a string
         if game.target_revealed is None:
             target_revealed = ''

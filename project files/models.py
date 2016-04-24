@@ -115,7 +115,7 @@ class Game(ndb.Model):
         return form
 
     def end_game(self, game, user, result, difficulty):
-        """Ends the game and sets the score.
+        """Ends the game, sets the score, and updates user rank.
         If result is True, the player won.
         If result is False, the player lost."""
         self.won = result
@@ -143,6 +143,9 @@ class Game(ndb.Model):
             date=date.today()
         )
         score.put()
+
+        # update user rank
+        UserRank.set_user_rank(user_key, difficulty)
 
 
 class Score(ndb.Model):
@@ -178,13 +181,26 @@ class UserRank(ndb.Model):
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
         # get scores for all games by this user in every difficulty level
-        all_games_played = Score.query(ancestor=user).fetch()
+        all_games_played = Game.query(ancestor=user).fetch()
+        logging.info(all_games_played)
         games_this_difficulty_level = 0
         wins = 0
+        # convert difficulty to int_difficulty
+        if difficulty == 'hard':
+            int_difficulty = 6
+        elif difficulty == 'medium':
+            int_difficulty = 9
+        elif difficulty == 'easy':
+            int_difficulty = 12
         # count games/wins for this difficulty level
         for game in all_games_played:
-            if game.difficulty == difficulty and game.complete is True:
-                games_this_difficulty_level += 1
+            logging.info(game.attempts_allowed)
+            logging.info(int_difficulty)
+            if game.attempts_allowed == int_difficulty:
+                # count only games that are over. the user might have several
+                # not started games. we aren't looking for those.
+                if game.game_over is True:
+                    games_this_difficulty_level += 1
                 if game.won is True:
                     wins += 1
 
@@ -206,6 +222,7 @@ class UserRank(ndb.Model):
             # rank exists. update it.
             rank.performance = win_percentage
             rank.put()
+
 
 
 class GameForm(messages.Message):

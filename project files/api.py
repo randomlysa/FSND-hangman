@@ -222,25 +222,18 @@ class HangmanApi(remote.Service):
             return show_target_string
 
         # begin evaluating guesses
-        """
+
         # first, allow solving
         if guess == targetLower:
-            game.end_game(True)
             # set game.game_over = True and game.won = True
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, True, difficulty
             )
             target_revealed = target_word
-            score.solved=True
-            score.won=True
-            score.complete = True
-            score.score = score
-            score.put()
-            UserRank.set_user_rank(user.key, difficulty)
             return game.to_form(
-                        'You solved the puzzle! The correct word is: ' + target
+                'You solved the puzzle! The correct word is: ' + target_word
             )
-        """
+
         # handle miscellaneous errors/mistakes
         if len(guess) == 0:
             msg = "You didn't guess a letter!"

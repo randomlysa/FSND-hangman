@@ -120,6 +120,8 @@ class Game(ndb.Model):
         If result is False, the player lost."""
         self.won = result
         self.game_over = True
+        # save game result
+        self.put()
 
         # calculate the score
         setScore = int(

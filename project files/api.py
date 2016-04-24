@@ -206,11 +206,11 @@ class HangmanApi(remote.Service):
                     i += 1
                 elif letter in target_revealed:
                     # append previously correctly guessed letter(s)
-                    # to show_target
+                    # to show_target_list
                     show_target_list.append(letter)
                     i += 1
                 else:
-                    # otherwise append an underscore ' _ '
+                    # for letters not yet guessed, append an underscore ' _ '
                     show_target_list.append(" _ ")
                     i += 1
             # convert show_target_list (list with correct letters and

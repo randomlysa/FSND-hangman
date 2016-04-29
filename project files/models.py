@@ -87,7 +87,7 @@ class Game(ndb.Model):
         form.attempts_allowed = self.attempts_allowed
         form.attempts_remaining = self.attempts_remaining
         form.game_over = self.game_over
-        form.user_name = self.user.get().name
+        form.user = self.user.get().name
         form.message = message
 
         # convert attempts_remaining to body_parts to be drawn
@@ -145,34 +145,34 @@ class Game(ndb.Model):
         score.put()
 
         # update user rank
-        UserRank.set_user_rank(user_key, difficulty)
+        UserRank.set_user_rank(user, difficulty)
 
 
 class Score(ndb.Model):
     """Score object"""
-    user_key = ndb.KeyProperty(required=True, kind='User')
+    user = ndb.KeyProperty(required=True, kind='User')
     date = ndb.DateProperty(required=True)
     difficulty = ndb.StringProperty()
     score = ndb.IntegerProperty(default=0)
 
-    def to_form(self):
-        return ScoreForm(
-            user_key=self.user_key,
+    def to_form(self):        
+        return ScoreForm(            
+            user=self.user.get().name,
             date=str(self.date),
             difficulty=self.difficulty,
-            score=self.score
+            score=self.score            
         )
 
 
 class UserRank(ndb.Model):
     """User Rank object"""
-    user_name = ndb.KeyProperty(required=True, kind='User')
+    user = ndb.KeyProperty(required=True, kind='User')
     difficulty = ndb.StringProperty(required=True)
     performance = ndb.IntegerProperty(required=True)
 
     def to_form(self):
         return UserRankForm(
-                        user_name=self.user_name.get().name,
+                        user=self.user.get().name,
                         performance=self.performance,
                         difficulty=self.difficulty
                         )
@@ -207,13 +207,13 @@ class UserRank(ndb.Model):
         win_percentage = \
             int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
-                ndb.AND(UserRank.user_name == user,
+                ndb.AND(UserRank.user == user,
                     ndb.AND(UserRank.difficulty == difficulty))
             ).get()
         if rank is None:
             # rank is empty, create and save it
             rank = UserRank(
-                user_name=user,
+                user=user,
                 difficulty=difficulty,
                 performance=win_percentage
             )
@@ -236,7 +236,7 @@ class GameForm(messages.Message):
     incorrect_letters = messages.StringField(8)
     game_over = messages.BooleanField(9, required=True)
     message = messages.StringField(10, required=True)
-    user_name = messages.StringField(11, required=True)
+    user = messages.StringField(11, required=True)
     body_parts = messages.StringField(12)
 
 
@@ -247,7 +247,7 @@ class GameKeysForm(messages.Message):
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""
-    user_name = messages.StringField(1, required=True)
+    user = messages.StringField(1, required=True)
     # target = messages.StringField(2)
     attempts = messages.IntegerField(2, default=9)
     min_letters = messages.IntegerField(3, default=6)
@@ -261,7 +261,7 @@ class MakeMoveForm(messages.Message):
 
 class ScoreForm(messages.Message):
     """ScoreForm for outbound Score information"""
-    user_name = messages.StringField(1, required=True)
+    user = messages.StringField(1, required=True)
     date = messages.StringField(2, required=True)
     won = messages.BooleanField(3, required=True)
     complete = messages.BooleanField(4, required=True, default=False)
@@ -285,7 +285,7 @@ class StringMessage(messages.Message):
 
 
 class UserRankForm(messages.Message):
-    user_name = messages.StringField(1, required=True)
+    user = messages.StringField(1, required=True)
     difficulty = messages.StringField(3, required=True)
     performance = messages.IntegerField(2, required=True)
 

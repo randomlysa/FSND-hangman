@@ -26,11 +26,11 @@ MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     urlsafe_game_key=messages.StringField(1),
 )
 USER_REQUEST = endpoints.ResourceContainer(
-    user_name=messages.StringField(1),
+    user=messages.StringField(1),
     email=messages.StringField(2)
 )
 USERNAME_REQUEST = endpoints.ResourceContainer(
-    user_name=messages.StringField(1)
+    user=messages.StringField(1)
 )
 HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
     number_of_results=messages.IntegerField(1)
@@ -49,13 +49,13 @@ class HangmanApi(remote.Service):
                       http_method='POST')
     def create_user(self, request):
         """Create a User. Requires a unique username"""
-        if User.query(User.name == request.user_name).get():
+        if User.query(User.name == request.user).get():
             raise endpoints.ConflictException(
                     'A User with that name already exists!')
-        user = User(name=request.user_name, email=request.email)
+        user = User(name=request.user, email=request.email)
         user.put()
         return StringMessage(message='User {} created!'.format(
-                request.user_name))
+                request.user))
 
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
@@ -64,7 +64,7 @@ class HangmanApi(remote.Service):
                       http_method='POST')
     def new_game(self, request):
         """Creates new game"""
-        user = User.query(User.name == request.user_name).get()
+        user = User.query(User.name == request.user).get()
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
@@ -105,13 +105,13 @@ class HangmanApi(remote.Service):
 
     @endpoints.method(request_message=USERNAME_REQUEST,
                       response_message=GameKeysForm,
-                      path='user/{user_name}/games',
+                      path='user/{user}/games',
                       name='get_user_games',
                       http_method='GET')
     def get_user_games(self, request):
         """Returns websafe keys of all unfinished games by the user"""
-        user_name = request.user_name
-        user = User.query(User.name == user_name).get()
+        user = request.user
+        user = User.query(User.name == user).get()
         games = Game.query(Game.user == user.key).fetch()
         gameKeys = []
         for game in games:
@@ -351,7 +351,7 @@ class HangmanApi(remote.Service):
                       http_method='GET')
     def get_user_scores(self, request):
         """Returns all of an individual User's scores"""
-        user = User.query(User.name == request.user_name).get()
+        user = User.query(User.name == request.user).get()
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')

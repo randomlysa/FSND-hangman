@@ -355,8 +355,7 @@ class HangmanApi(remote.Service):
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
-        scores = Score.query(ndb.AND(Score.user_name == user.key,
-                                ndb.AND(Score.complete == True)))
+        scores = Score.query(Score.user == user.key)
         return ScoreForms(items=[score.to_form() for score in scores])
 
     @endpoints.method(request_message=HIGH_SCORE_REQUEST,

@@ -241,6 +241,19 @@ class HangmanApi(remote.Service):
             add_letters =  ''.join(x for x in letters_guessed_for_solve)            
             game.correct_letters += add_letters
 
+            # add the solve to game.history
+            history = (\
+                "(\
+                'guess': %s, \
+                'result': 'You solved the puzzle! The correct word \
+                    is: %s', \
+                'remaining': %d \
+                )"
+            ) % (guess, target_word, game.attempts_remaining)
+            game.game_history.append(history)
+
+            game.put()
+
             # set game.game_over = True and game.won = True
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, True, difficulty

@@ -23,7 +23,8 @@ GET_GAME_REQUEST = endpoints.ResourceContainer(
         urlsafe_game_key=messages.StringField(1),)
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
-    urlsafe_game_key=messages.StringField(1),)
+    urlsafe_game_key=messages.StringField(1),
+)
 USER_REQUEST = endpoints.ResourceContainer(
     user_name=messages.StringField(1),
     email=messages.StringField(2)
@@ -258,6 +259,7 @@ class HangmanApi(remote.Service):
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, True, difficulty
             )
+
             target_revealed = target_word
             return game.to_form(
                 'You solved the puzzle! The correct word is: ' + target_word

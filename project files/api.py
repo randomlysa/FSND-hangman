@@ -29,8 +29,8 @@ USER_REQUEST = endpoints.ResourceContainer(
     user=messages.StringField(1),
     email=messages.StringField(2)
 )
-USERNAME_REQUEST = endpoints.ResourceContainer(
-    user=messages.StringField(1)
+user_name = endpoints.ResourceContainer(
+    user_name=messages.StringField(1)
 )
 HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
     number_of_results=messages.IntegerField(1)
@@ -103,14 +103,14 @@ class HangmanApi(remote.Service):
         else:
             raise endpoints.NotFoundException('Game not found!')
 
-    @endpoints.method(request_message=USERNAME_REQUEST,
+    @endpoints.method(request_message=user_name,
                       response_message=GameKeysForm,
-                      path='user/{user}/games',
+                      path='user/{user_name}/games',
                       name='get_user_games',
                       http_method='GET')
     def get_user_games(self, request):
         """Returns websafe keys of all unfinished games by the user"""
-        user = request.user
+        user = request.user_name        
         user = User.query(User.name == user).get()
         games = Game.query(Game.user == user.key).fetch()
         gameKeys = []
@@ -344,14 +344,15 @@ class HangmanApi(remote.Service):
         scores = Score.query(Score.complete == True)
         return ScoreForms(items=[score.to_form() for score in scores])
 
-    @endpoints.method(request_message=USERNAME_REQUEST,
+    @endpoints.method(request_message=user_name,
                       response_message=ScoreForms,
                       path='user/scores/{user_name}',
                       name='get_user_scores',
                       http_method='GET')
     def get_user_scores(self, request):
         """Returns all of an individual User's scores"""
-        user = User.query(User.name == request.user).get()
+        user = User.query(User.name == request.user_name).get()
+        logging.info(request.user_name)
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')

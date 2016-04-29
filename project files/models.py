@@ -130,14 +130,14 @@ class Game(ndb.Model):
             )
         )
 
-        user_key = ndb.Key(urlsafe=user)
+        user = ndb.Key(urlsafe=user)
         game_key = ndb.Key(urlsafe=game)
 
         # set the score
         score = Score(
             # game is the parent
             parent=game_key,
-            user_key=user_key,
+            user=user,
             difficulty=difficulty,
             score=setScore,
             date=date.today()

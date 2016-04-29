@@ -55,8 +55,8 @@ class Game(ndb.Model):
         # used for this hangman game.
         pick_line = random.randrange(0, max_lines_correct_length_words)
         word = correct_length_words[pick_line].rstrip('\n')
-        # set target_revealed to be the same number of underscores as the number
-        # of letters in the word
+        # set target_revealed to be the same number of underscores
+        # as the number of letters in the word
         target_revealed = "_ " * len(word)
 
         if attempts not in valid_attempts_allowed:
@@ -126,7 +126,12 @@ class Game(ndb.Model):
         # calculate the score
         setScore = int(
             (
-                float(len(self.correct_letters)) / (len(self.correct_letters) + len(self.incorrect_letters)) * 1000
+                float(
+                    len(self.correct_letters)
+                ) /
+                (
+                    len(self.correct_letters) + len(self.incorrect_letters)
+                ) * 1000
             )
         )
 
@@ -155,12 +160,12 @@ class Score(ndb.Model):
     difficulty = ndb.StringProperty()
     score = ndb.IntegerProperty(default=0)
 
-    def to_form(self):        
-        return ScoreForm(            
+    def to_form(self):
+        return ScoreForm(
             user=self.user.get().name,
             date=str(self.date),
             difficulty=self.difficulty,
-            score=self.score            
+            score=self.score
         )
 
 
@@ -207,9 +212,9 @@ class UserRank(ndb.Model):
         win_percentage = \
             int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
-                ndb.AND(UserRank.user == user,
-                    ndb.AND(UserRank.difficulty == difficulty))
-            ).get()
+            ndb.AND(UserRank.user == user,
+                ndb.AND(UserRank.difficulty == difficulty))
+        ).get()
         if rank is None:
             # rank is empty, create and save it
             rank = UserRank(
@@ -222,7 +227,6 @@ class UserRank(ndb.Model):
             # rank exists. update it.
             rank.performance = win_percentage
             rank.put()
-
 
 
 class GameForm(messages.Message):

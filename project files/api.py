@@ -110,12 +110,12 @@ class HangmanApi(remote.Service):
                       http_method='GET')
     def get_user_games(self, request):
         """Returns websafe keys of all unfinished games by the user"""
-        user = request.user_name        
+        user = request.user_name
         user = User.query(User.name == user).get()
         games = Game.query(Game.user == user.key).fetch()
         gameKeys = []
         for game in games:
-            if game.game_over == False and game.cancelled == False:
+            if game.game_over is False and game.cancelled is False:
                 gameKeys.append(game.key.urlsafe())
         return GameKeysForm(keys=[key for key in gameKeys])
 
@@ -234,12 +234,12 @@ class HangmanApi(remote.Service):
                 # guessed and are not already in the letters_guessed list
                 # to the list
                 if letter not in game.correct_letters and \
-                    letter not in letters_guessed_for_solve:
-                        letters_guessed_for_solve.append(letter)
+                        letter not in letters_guessed_for_solve:
+                            letters_guessed_for_solve.append(letter)
 
-            # add the guessed letters to game.correct_letters 
-            # for scoring purposes 
-            add_letters =  ''.join(x for x in letters_guessed_for_solve)            
+            # add the guessed letters to game.correct_letters
+            # for scoring purposes
+            add_letters = ''.join(x for x in letters_guessed_for_solve)
             game.correct_letters += add_letters
 
             # add the solve to game.history

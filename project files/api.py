@@ -225,6 +225,22 @@ class HangmanApi(remote.Service):
 
         # first, allow solving
         if guess == targetLower:
+            # calculate the letters that were 'guessed' in order to solve
+            # the word
+            letters_guessed_for_solve = []
+            for letter in targetLower:
+                # add letters from the target word that were not already
+                # guessed and are not already in the letters_guessed list
+                # to the list
+                if letter not in game.correct_letters and \
+                    letter not in letters_guessed_for_solve:
+                        letters_guessed_for_solve.append(letter)
+
+            # add the guessed letters to game.correct_letters 
+            # for scoring purposes 
+            add_letters =  ''.join(x for x in letters_guessed_for_solve)            
+            game.correct_letters += add_letters
+
             # set game.game_over = True and game.won = True
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, True, difficulty

@@ -263,15 +263,8 @@ class ScoreForm(messages.Message):
     """ScoreForm for outbound Score information"""
     user = messages.StringField(1, required=True)
     date = messages.StringField(2, required=True)
-    won = messages.BooleanField(3, required=True)
-    complete = messages.BooleanField(4, required=True, default=False)
-    total_guesses = messages.IntegerField(5, required=True)
-    correct_guesses = messages.IntegerField(6)
-    incorrect_guesses = messages.IntegerField(7)
-    not_valid_guesses = messages.IntegerField(8)
-    solved = messages.BooleanField(9)
-    difficulty = messages.StringField(10)
-    score = messages.IntegerField(11)
+    difficulty = messages.StringField(3)
+    score = messages.IntegerField(4)
 
 
 class ScoreForms(messages.Message):

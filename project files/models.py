@@ -192,10 +192,11 @@ class UserRank(ndb.Model):
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
         # get scores for all games by this user in every difficulty level
-        all_games_played = Game.query(ancestor=user).fetch()
-        logging.info(all_games_played)
-        games_this_difficulty_level = 0
-        wins = 0
+        all_games_played = Game.query(ancestor=user).fetch()        
+        games_this_difficulty_level = 0  # game.game_over = True
+        games_cancelled = 0
+        games_won = 0
+
         # convert difficulty to int_difficulty
         if difficulty == 'hard':
             int_difficulty = 6
@@ -203,35 +204,61 @@ class UserRank(ndb.Model):
             int_difficulty = 9
         elif difficulty == 'easy':
             int_difficulty = 12
-        # count games/wins for this difficulty level
+
+        # count games/games_won/cancelled for this difficulty level
         for game in all_games_played:
-            logging.info(game.attempts_allowed)
-            logging.info(int_difficulty)
             if game.attempts_allowed == int_difficulty:
                 # count only games that are over. the user might have several
                 # not started games. we aren't looking for those.
                 if game.game_over is True:
                     games_this_difficulty_level += 1
                 if game.won is True:
-                    wins += 1
+                    games_won += 1
+                if game.cancelled is True:
+                    games_cancelled += 1
 
         win_percentage = \
-            int((float(wins) / games_this_difficulty_level) * 1000)
+            int((float(games_won) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
             ndb.AND(UserRank.user == user,
                     ndb.AND(UserRank.difficulty == difficulty))
         ).get()
+
+        # games_this_difficulty_level = games that have been won or lost,
+        # ie "finished.""
+        if games_this_difficulty_level != 0:
+            percent_finished = float(games_this_difficulty_level) \
+                / (games_cancelled + games_this_difficulty_level)
+        else:
+            # if no games have been finished, 100% of the games must have been
+            # cancelled
+            percent_finished = 0
+
+        # logging.info(games_this_difficulty_level)
+        # logging.info(games_cancelled)
+        # logging.info(games_won)
+        # logging.info(percent_finished)
+
+        # a user must keep his percent_finished above 90%. otherwise, his Rank
+        # is multiplied by the percent of games he has finished
+        if percent_finished < 0.9:
+            # set user's new_performance to win_percentage * percent_finished
+            new_performance = int(percent_finished * win_percentage)
+        else:
+            # otherwise the new_performance is the win_percentage
+            new_performance = win_percentage
+
         if rank is None:
             # rank is empty, create and save it
             rank = UserRank(
                 user=user,
                 difficulty=difficulty,
-                performance=win_percentage
+                performance=new_performance
             )
             rank.put()
         else:
             # rank exists. update it.
-            rank.performance = win_percentage
+            rank.performance = new_performance
             rank.put()
 
 

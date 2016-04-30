@@ -153,7 +153,9 @@ class Game(ndb.Model):
 
 
 class Score(ndb.Model):
-    """Score object"""
+    """Score object. *Each game* has a score, which is the percent of letters
+    that was correctly guessed:
+    len(correct_letters) / (len(correct_letters) + len(incorrect_letters))"""
     user = ndb.KeyProperty(required=True, kind='User')
     date = ndb.DateProperty(required=True)
     difficulty = ndb.StringProperty()
@@ -170,7 +172,10 @@ class Score(ndb.Model):
 
 
 class UserRank(ndb.Model):
-    """User Rank object"""
+    """User Rank object. This is the users overall win percentage per each
+    difficulty level. For each difficuly level, if a user's cancelled games 
+    is over 10%, his overall rank for that difficulty level is affected: 
+    UserRank *= completion percentage for this rank."""
     user = ndb.KeyProperty(required=True, kind='User')
     difficulty = ndb.StringProperty(required=True)
     performance = ndb.IntegerProperty(required=True)

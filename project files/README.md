@@ -15,8 +15,8 @@ A simple implementation of hangman. Each game begins with a random 'target'
 word with  a maximum number of 'attempts' allowed.
 'Guesses' are sent to the `make_move` endpoint which will reply
 with either:
-  * 'You win' if you guess all the letters, or
-  * 'Game over!' if you run out of attempts,
+  * 'You win' if you guess all the letters or 'solve' the word by guessing the complete word, or
+  * 'Game over!' if you run out of attempts or attempt to solve but are incorrect, 
   * whether the guessed letter was correct or not,
   * as well messages for the following events:
     * empty guess
@@ -32,6 +32,7 @@ After any guess, the following information is returned:
   * game_over - if the game is over,
   * incorrect_letters,
   * message: a message about the game or about the last guess,
+  * target_revealed: the target word with correctly guessed letters filled in and underscores for missing letters,
   * urlsafe_key - the urlsafe game key,
   * user_name.
 
@@ -43,10 +44,15 @@ given time. Each game can be retrieved or played by using the path parameter
   * Make a user using the `create_user` endpoint.
   * Make a new game using the `new_game` endpoint.
   * Guess letters using the `make_move` endpoint until you win or run out of guesses!
+  * Guesses with 0-4 characters are considered an errant guess. However, any guess of 5 or more letters that is not equal 
+  to the target word is considered an attempt to solve, and if not correct, will result in a game over.
 
 ## Rules and Scoring:
-  A game is played until the word is revealed or until you have incorrectly guessed enough times
-  for the game to be over (6, 9, or 12 times, depending on difficulty level.)
+  A game is played until:
+  * you reveal the target word by correctly guessing all the missing letters,
+  * you solve the puzzle by guessing the correct word,
+  * you have incorrectly guessed enough timesfor the game to be over (6, 9, or 12 times, depending on difficulty level) , 
+  * or you attempt to solve the puzzle but are incorrect.
 
   Per-game high score is calculated by the number of correct guesses / number of total guesses.
   Therefore, a game with no incorrect guesses would net a score of '100', and a game of no correct guesses

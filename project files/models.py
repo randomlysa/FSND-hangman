@@ -1,6 +1,5 @@
 """models.py - This file contains the class definitions for the Datastore
-entities used by the Game. Because these classes are also regular Python
-classes they can include methods (such as 'to_form' and 'new_game')."""
+entities used by the game Hangman."""
 
 import logging
 import random
@@ -124,7 +123,7 @@ class Game(ndb.Model):
         self.put()
 
         # calculate the score
-        setScore = int(
+        set_score = int(
             (
                 float(
                     len(self.correct_letters)
@@ -144,7 +143,7 @@ class Game(ndb.Model):
             parent=game_key,
             user=user,
             difficulty=difficulty,
-            score=setScore,
+            score=set_score,
             date=date.today()
         )
         score.put()
@@ -161,6 +160,7 @@ class Score(ndb.Model):
     score = ndb.IntegerProperty(default=0)
 
     def to_form(self):
+        """Sends Score message."""
         return ScoreForm(
             user=self.user.get().name,
             date=str(self.date),
@@ -176,11 +176,12 @@ class UserRank(ndb.Model):
     performance = ndb.IntegerProperty(required=True)
 
     def to_form(self):
+        """Sends UserRank message."""
         return UserRankForm(
-                        user=self.user.get().name,
-                        performance=self.performance,
-                        difficulty=self.difficulty
-                        )
+            user=self.user.get().name,
+            performance=self.performance,
+            difficulty=self.difficulty
+        )
 
     @classmethod
     def set_user_rank(cls, user, difficulty):
@@ -213,7 +214,7 @@ class UserRank(ndb.Model):
             int((float(wins) / games_this_difficulty_level) * 1000)
         rank = UserRank.query(
             ndb.AND(UserRank.user == user,
-                ndb.AND(UserRank.difficulty == difficulty))
+                    ndb.AND(UserRank.difficulty == difficulty))
         ).get()
         if rank is None:
             # rank is empty, create and save it

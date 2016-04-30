@@ -20,7 +20,7 @@ from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
 GET_GAME_REQUEST = endpoints.ResourceContainer(
-        urlsafe_game_key=messages.StringField(1),)
+    urlsafe_game_key=messages.StringField(1),)
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),
@@ -29,7 +29,7 @@ USER_REQUEST = endpoints.ResourceContainer(
     user=messages.StringField(1),
     email=messages.StringField(2)
 )
-user_name = endpoints.ResourceContainer(
+USER_NAME = endpoints.ResourceContainer(
     user_name=messages.StringField(1)
 )
 HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
@@ -51,11 +51,11 @@ class HangmanApi(remote.Service):
         """Create a User. Requires a unique username"""
         if User.query(User.name == request.user).get():
             raise endpoints.ConflictException(
-                    'A User with that name already exists!')
+                'A User with that name already exists!')
         user = User(name=request.user, email=request.email)
         user.put()
         return StringMessage(message='User {} created!'.format(
-                request.user))
+            request.user))
 
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
@@ -67,7 +67,7 @@ class HangmanApi(remote.Service):
         user = User.query(User.name == request.user).get()
         if not user:
             raise endpoints.NotFoundException(
-                    'A User with that name does not exist!')
+                'A User with that name does not exist!')
         try:
             game = Game.new_game(
                 user.key,
@@ -103,7 +103,7 @@ class HangmanApi(remote.Service):
         else:
             raise endpoints.NotFoundException('Game not found!')
 
-    @endpoints.method(request_message=user_name,
+    @endpoints.method(request_message=USER_NAME,
                       response_message=GameKeysForm,
                       path='user/{user_name}/games',
                       name='get_user_games',
@@ -113,11 +113,11 @@ class HangmanApi(remote.Service):
         user = request.user_name
         user = User.query(User.name == user).get()
         games = Game.query(Game.user == user.key).fetch()
-        gameKeys = []
+        game_keys = []
         for game in games:
             if game.game_over is False and game.cancelled is False:
-                gameKeys.append(game.key.urlsafe())
-        return GameKeysForm(keys=[key for key in gameKeys])
+                game_keys.append(game.key.urlsafe())
+        return GameKeysForm(keys=[key for key in game_keys])
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=StringMessage,
@@ -129,7 +129,6 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
 
         if game.game_over is not True and game.cancelled is not True:
-            attempts = int(game.attempts_remaining)
             game.cancelled = True
             # note in the game history that the game has been cancelled
             game.game_history.append("('guess': 'None', \
@@ -182,7 +181,7 @@ class HangmanApi(remote.Service):
         # make the guess lowercase, to be safe.
         guess = request.guess.lower()
         target_word = game.target_word
-        targetLower = target_word.lower()
+        target_lower = target_word.lower()
         # set game.target_revealed to be a string
         if game.target_revealed is None:
             target_revealed = ''
@@ -198,7 +197,7 @@ class HangmanApi(remote.Service):
             i = 0  # keep track of what letter we are on / to replace
             # build the revealed word using correctly guessed letters and
             # underscores for not guessed letters
-            for letter in targetLower:
+            for letter in target_lower:
                 # if this letter in the target word is the same as the letter
                 # that was just guessed
                 if letter == guess:
@@ -225,17 +224,17 @@ class HangmanApi(remote.Service):
         # begin evaluating guesses
 
         # first, allow solving
-        if guess == targetLower:
+        if guess == target_lower:
             # calculate the letters that were 'guessed' in order to solve
             # the word
             letters_guessed_for_solve = []
-            for letter in targetLower:
+            for letter in target_lower:
                 # add letters from the target word that were not already
                 # guessed and are not already in the letters_guessed list
                 # to the list
                 if letter not in game.correct_letters and \
                         letter not in letters_guessed_for_solve:
-                            letters_guessed_for_solve.append(letter)
+                    letters_guessed_for_solve.append(letter)
 
             # add the guessed letters to game.correct_letters
             # for scoring purposes
@@ -243,7 +242,7 @@ class HangmanApi(remote.Service):
             game.correct_letters += add_letters
 
             # add the solve to game.history
-            history = (\
+            history = (
                 "(\
                 'guess': %s, \
                 'result': 'You solved the puzzle! The correct word \
@@ -252,7 +251,6 @@ class HangmanApi(remote.Service):
                 )"
             ) % (guess, target_word, game.attempts_remaining)
             game.game_history.append(history)
-
             game.put()
 
             # set game.game_over = True and game.won = True
@@ -271,7 +269,7 @@ class HangmanApi(remote.Service):
         elif len(guess) > 1:
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in game.incorrect_letters:
-                msg = "You already incorrectly guessed this letter!"
+            msg = "You already incorrectly guessed this letter!"
         elif guess in target_revealed:
             msg = "You already correctly guessed this letter!"
 
@@ -301,7 +299,7 @@ class HangmanApi(remote.Service):
         # save msg and guess to game.game_history for get_game_history
         # set the message for game history
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (
-                    guess, msg, game.attempts_remaining
+            guess, msg, game.attempts_remaining
         )
         if game.game_history is None:
             game.game_history = history
@@ -344,7 +342,7 @@ class HangmanApi(remote.Service):
         scores = Score.query(Score.complete == True)
         return ScoreForms(items=[score.to_form() for score in scores])
 
-    @endpoints.method(request_message=user_name,
+    @endpoints.method(request_message=USER_NAME,
                       response_message=ScoreForms,
                       path='user/scores/{user_name}',
                       name='get_user_scores',
@@ -355,7 +353,7 @@ class HangmanApi(remote.Service):
         logging.info(request.user_name)
         if not user:
             raise endpoints.NotFoundException(
-                    'A User with that name does not exist!')
+                'A User with that name does not exist!')
         scores = Score.query(Score.user == user.key)
         return ScoreForms(items=[score.to_form() for score in scores])
 
@@ -389,8 +387,8 @@ class HangmanApi(remote.Service):
     def get_average_attempts(self, request):
         """Get the cached average moves remaining"""
         return StringMessage(
-                message=memcache.get(MEMCACHE_MOVES_REMAINING) or ''
-            )
+            message=memcache.get(MEMCACHE_MOVES_REMAINING) or ''
+        )
 
     @staticmethod
     def _cache_average_attempts():
@@ -400,7 +398,7 @@ class HangmanApi(remote.Service):
             count = len(games)
             total_attempts_remaining = \
                 sum([game.attempts_remaining for game in games])
-            average = float(total_attempts_remaining)/count
+            average = float(total_attempts_remaining) / count
             memcache.set(
                 MEMCACHE_MOVES_REMAINING,
                 'The average moves remaining is {:.2f}'.format(average)

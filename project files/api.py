@@ -262,11 +262,21 @@ class HangmanApi(remote.Service):
             return game.to_form(
                 'You solved the puzzle! The correct word is: ' + target_word
             )
-
+        # an attempt to solve was incorrect. game over!
+        elif len(guess) > 4 and guess != target_lower:
+            # set game.game_over = True and game.won = False
+            game.end_game(
+                request.urlsafe_game_key, user_urlsafe, False, difficulty
+            )
+            msg = "Your attempt to solve was unsuccessful! Game over!"
+            return game.to_form(msg)
         # handle miscellaneous errors/mistakes
-        if len(guess) == 0:
+        elif len(guess) == 0:
             msg = "You didn't guess a letter!"
-        elif len(guess) > 1:
+        # since all words 0 to 4 characters long were removed from the word
+        # list, guesses of 1 to 4 characters long can be assumed to be
+        # errant guesses, not attempts to solve.
+        elif len(guess) > 1 and len(guess) < 5:
             msg = 'You cannot guess more than one letter at a time!'
         elif guess in game.incorrect_letters:
             msg = "You already incorrectly guessed this letter!"

@@ -2,7 +2,6 @@
 
 """main.py - This file contains handlers that are called by taskqueue and/or
 cronjobs."""
-import logging
 
 import webapp2
 from google.appengine.api import mail, app_identity
@@ -23,8 +22,8 @@ class SendReminderEmail(webapp2.RequestHandler):
             unfinished = 0
             for game in games:
                 # count games that are not over
-                if game.game_over==False:
-                    unfinished +=1
+                if game.game_over is False:
+                    unfinished += 1
 
             subject = \
                 'Reminder! You have %d unfinished hangman games!' \

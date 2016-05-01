@@ -1,7 +1,4 @@
-"""api.py - Create and configure the Game API exposing the resources.
-This can also contain game logic. For more complex games it would be wise to
-move game logic to another file. Ideally the API will be simple, concerned
-primarily with communication to/from the API's users."""
+"""api.py - Create and configure the Game API exposing the resources."""
 
 
 import textwrap
@@ -34,7 +31,6 @@ USER_NAME = endpoints.ResourceContainer(
 HIGH_SCORE_REQUEST = endpoints.ResourceContainer(
     number_of_results=messages.IntegerField(1)
 )
-
 MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
 
@@ -163,21 +159,11 @@ class HangmanApi(remote.Service):
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
-        """Guess a letter or attempt to solve! Returns a game state with 
+        """Guess a letter or attempt to solve! Returns a game state with
         message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key == game.user).get()
         user_urlsafe = user.key.urlsafe()
-        """
-        # convert attempts_allowed to a difficulty level
-        int_difficulty = game.attempts_allowed
-        if int_difficulty == 6:
-            set_difficulty = 'hard'
-        elif int_difficulty == 9:
-            set_difficulty = 'medium'
-        elif int_difficulty == 12:
-            set_difficulty = 'easy'
-        """
 
         # needed for UserRank.set_user_rank
         difficulty = game.convert_int_to_difficulty(game.attempts_allowed)
@@ -198,10 +184,8 @@ class HangmanApi(remote.Service):
             target_revealed = game.target_revealed
 
         def reveal_word(guess=''):
-            """
-                convert 'target_word' into a string with correctly guessed
-                letters and underscores for unguessed letters
-            """
+            """Convert 'target_word' into a string with correctly guessed
+            letters and underscores for unguessed letters"""
             show_target_list = []
             i = 0  # keep track of what letter we are on / to replace
             # build the revealed word using correctly guessed letters and
@@ -232,7 +216,7 @@ class HangmanApi(remote.Service):
 
         # begin evaluating guesses
 
-        # first, allow solving
+        # an attempt to solve was correct. game over!
         if guess == target_lower:
             # calculate the letters that were 'guessed' in order to solve
             # the word
@@ -283,14 +267,17 @@ class HangmanApi(remote.Service):
                 )"
             ) % (guess, target_word, game.attempts_remaining)
             game.game_history.append(history)
+
             # log the incorrect guess
             game.incorrect_letters = guess
+
             # set game.game_over = True and game.won = False
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, False, difficulty
             )
             msg = "Your attempt to solve was unsuccessful! Game over!"
             return game.to_form(msg)
+
         # handle miscellaneous errors/mistakes
         elif len(guess) == 0:
             msg = "You didn't guess a letter!"
@@ -321,11 +308,13 @@ class HangmanApi(remote.Service):
             # the guess was correct but did not solve the word
             else:
                 msg = 'Correct! Guess another letter.'
+
         # a letter was guessed incorrectly
         else:
             msg = 'Incorrect! That letter is not in the word.'
             game.incorrect_letters += guess
             game.attempts_remaining -= 1
+
         # end evaluating guesses
 
         # here I can put things that can be run on any guess

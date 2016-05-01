@@ -184,8 +184,8 @@ class Score(ndb.Model):
 
 class UserRank(ndb.Model):
     """User Rank object. This is the users overall win percentage per each
-    difficulty level. For each difficuly level, if a user's cancelled games 
-    is over 10%, his overall rank for that difficulty level is affected: 
+    difficulty level. For each difficuly level, if a user's cancelled games
+    is over 10%, his overall rank for that difficulty level is affected:
     UserRank *= completion percentage for this rank."""
     user = ndb.KeyProperty(required=True, kind='User')
     difficulty = ndb.StringProperty(required=True)
@@ -203,7 +203,7 @@ class UserRank(ndb.Model):
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
         # get scores for all games by this user in every difficulty level
-        all_games_played = Game.query(ancestor=user).fetch()  
+        all_games_played = Game.query(ancestor=user).fetch()
         games_this_difficulty_level = 0  # game.game_over = True
         games_cancelled = 0
         games_won = 0

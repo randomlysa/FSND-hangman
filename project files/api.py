@@ -322,6 +322,11 @@ class HangmanApi(remote.Service):
         it does NOT run for:
         solve correct, solve incorrect, game won by all correct letters guessed
         """
+
+        if game.attempts_remaining < 1:
+            # add "Game over" to msg for game history clarity
+            msg += " Game over!"
+
         # save msg and guess to game.game_history for get_game_history
         # set the message for game history
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (
@@ -338,7 +343,7 @@ class HangmanApi(remote.Service):
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, False, difficulty
             )
-            return game.to_form(msg + ' Game over!')
+            return game.to_form(msg)
         # still attempts remaining. keep playing!
         else:
             game.put()

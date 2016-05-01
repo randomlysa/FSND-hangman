@@ -163,7 +163,8 @@ class HangmanApi(remote.Service):
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
-        """Guess a letter. Returns a game state with message"""
+        """Guess a letter or attempt to solve! Returns a game state with 
+        message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key == game.user).get()
         user_urlsafe = user.key.urlsafe()

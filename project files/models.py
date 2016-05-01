@@ -85,6 +85,7 @@ class Game(ndb.Model):
         form.attempts_remaining = self.attempts_remaining
         form.game_over = self.game_over
         form.user = self.user.get().name
+        form.won = self.won
         form.message = message
 
         # convert attempts_remaining to body_parts to be drawn
@@ -281,6 +282,7 @@ class GameForm(messages.Message):
     message = messages.StringField(10, required=True)
     user = messages.StringField(11, required=True)
     body_parts = messages.StringField(12)
+    won = messages.BooleanField(13)
 
 
 class GameKeysForm(messages.Message):

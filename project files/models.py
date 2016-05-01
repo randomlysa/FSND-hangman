@@ -204,7 +204,7 @@ class UserRank(ndb.Model):
     def set_user_rank(cls, user, difficulty):
         """Updates a users rank after a game has been completed."""
         # get scores for all games by this user in every difficulty level
-        all_games_played = Game.query(ancestor=user).fetch()        
+        all_games_played = Game.query(ancestor=user).fetch()  
         games_this_difficulty_level = 0  # game.game_over = True
         games_cancelled = 0
         games_won = 0
@@ -229,22 +229,17 @@ class UserRank(ndb.Model):
                 if game.cancelled is True:
                     games_cancelled += 1
 
-        win_percentage = \
-            int((float(games_won) / games_this_difficulty_level) * 1000)
-        rank = UserRank.query(
-            ndb.AND(UserRank.user == user,
-                    ndb.AND(UserRank.difficulty == difficulty))
-        ).get()
-
-        # games_this_difficulty_level = games that have been won or lost,
-        # ie "finished.""
         if games_this_difficulty_level != 0:
+            win_percentage = \
+                int((float(games_won) / games_this_difficulty_level) * 1000)
+
             percent_finished = float(games_this_difficulty_level) \
                 / (games_cancelled + games_this_difficulty_level)
         else:
             # if no games have been finished, 100% of the games must have been
             # cancelled
             percent_finished = 0
+            win_percentage = 0
 
         # logging.info(games_this_difficulty_level)
         # logging.info(games_cancelled)
@@ -259,6 +254,12 @@ class UserRank(ndb.Model):
         else:
             # otherwise the new_performance is the win_percentage
             new_performance = win_percentage
+
+        # try to get the user's current rank
+        rank = UserRank.query(
+            ndb.AND(UserRank.user == user,
+                    ndb.AND(UserRank.difficulty == difficulty))
+        ).get()
 
         if rank is None:
             # rank is empty, create and save it

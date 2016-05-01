@@ -358,7 +358,7 @@ class HangmanApi(remote.Service):
                       http_method='GET')
     def get_scores(self, request):
         """Return all scores"""
-        scores = Score.query(Score.complete == True)
+        scores = Score.query()
         return ScoreForms(items=[score.to_form() for score in scores])
 
     @endpoints.method(request_message=USER_NAME,

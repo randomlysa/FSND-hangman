@@ -317,7 +317,11 @@ class HangmanApi(remote.Service):
 
         # end evaluating guesses
 
-        # here I can put things that can be run on any guess
+        """the code below runs in the following cases:
+        misc errors guessed, incorrect guess
+        it does NOT run for:
+        solve correct, solve incorrect, game won by all correct letters guessed
+        """
         # save msg and guess to game.game_history for get_game_history
         # set the message for game history
         history = ("('guess': %s, 'result': '%s', 'remaining': %d)") % (

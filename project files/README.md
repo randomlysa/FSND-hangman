@@ -55,7 +55,7 @@ given time. Each game can be retrieved or played by using the path parameter
   * you have incorrectly guessed enough timesfor the game to be over (6, 9, or 12 times, depending on difficulty level),
   * or you attempt to solve the puzzle but are incorrect.
 
-  Per-game high score is calculated by the number of correct guesses / number of total guesses.
+  Per-game score is calculated by the number of correct guesses / number of total guesses.
   Therefore, a game with no incorrect guesses would net a score of '100', and a game of no correct guesses
   would net a score of '0.'
 

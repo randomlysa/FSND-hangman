@@ -4,6 +4,7 @@ move game logic to another file. Ideally the API will be simple, concerned
 primarily with communication to/from the API's users."""
 
 
+import textwrap
 import logging
 import endpoints
 from datetime import date
@@ -139,7 +140,7 @@ class HangmanApi(remote.Service):
             game.put()
 
             # update user's rank - might be affected if % of cancelled games
-            # goes over 10% ---
+            # goes over 10%
             difficulty = game.convert_int_to_difficulty(game.attempts_allowed)
             UserRank.set_user_rank(user, difficulty)
             return StringMessage(message="Game cancelled.")
@@ -274,7 +275,7 @@ class HangmanApi(remote.Service):
         # an attempt to solve was incorrect. game over!
         elif len(guess) > 4 and guess != target_lower:
             # add the failed solve to game.history
-            history = (
+            history = textwrap.dedent(
                 "(\
                 'guess': %s, \
                 'result': 'Your attempt to solve was unsuccessful! Game over! \

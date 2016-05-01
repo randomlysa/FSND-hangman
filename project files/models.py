@@ -78,7 +78,6 @@ class Game(ndb.Model):
         """Returns a GameForm representation of the Game"""
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
-        # form.target_word = self.target_word
         form.target_revealed = self.target_revealed
         form.correct_letters = self.correct_letters
         form.incorrect_letters = self.incorrect_letters

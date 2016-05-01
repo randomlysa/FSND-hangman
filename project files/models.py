@@ -25,7 +25,7 @@ class Game(ndb.Model):
     cancelled = ndb.BooleanProperty(required=True, default=False)
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
-    won = ndb.BooleanProperty()
+    won = ndb.BooleanProperty(default=False)
 
     @classmethod
     def new_game(cls, user, attempts, min_letters, max_letters):

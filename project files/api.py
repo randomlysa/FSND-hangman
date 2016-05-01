@@ -273,6 +273,8 @@ class HangmanApi(remote.Service):
             )
         # an attempt to solve was incorrect. game over!
         elif len(guess) > 4 and guess != target_lower:
+            # log the incorrect guess
+            game.incorrect_letters = guess
             # set game.game_over = True and game.won = False
             game.end_game(
                 request.urlsafe_game_key, user_urlsafe, False, difficulty

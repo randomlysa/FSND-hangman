@@ -299,10 +299,12 @@ class HangmanApi(remote.Service):
             game.target_revealed = reveal_word(guess)
             # check if this letter solved the word
             if game.target_revealed == target_word:
+                # game won!
                 # set game.game_over = True and game.won = True
                 game.end_game(
                     request.urlsafe_game_key, user_urlsafe, True, difficulty
                 )
+                msg = 'Correct! You solved the puzzle!'
                 return game.to_form('You win!')
             # the guess was correct but did not solve the word
             else:

@@ -394,7 +394,8 @@ class HangmanApi(remote.Service):
                       name='get_high_scores',
                       http_method='GET')
     def get_high_scores(self, request):
-        """Return high scores for all difficulty levels"""
+        """Return high scores for all difficulty levels, sorted high score to
+        low"""
         high_scores = Score.query().order(-Score.score)\
             .fetch(request.number_of_results)
         return ScoreForms(items=[score.to_form() for score in high_scores])

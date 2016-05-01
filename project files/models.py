@@ -113,6 +113,18 @@ class Game(ndb.Model):
 
         return form
 
+    def convert_int_to_difficulty(self, int_difficulty):
+        """ Converts attempts_allows (int representation of difficulty level)
+        to a word representation of difficulty level (easy, medium, hard) """
+        if int_difficulty == 6:
+            set_difficulty = 'hard'
+        elif int_difficulty == 9:
+            set_difficulty = 'medium'
+        elif int_difficulty == 12:
+            set_difficulty = 'easy'
+
+        return set_difficulty
+
     def end_game(self, game, user, result, difficulty):
         """Ends the game, sets the score, and updates user rank.
         If result is True, the player won.

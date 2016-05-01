@@ -273,6 +273,16 @@ class HangmanApi(remote.Service):
             )
         # an attempt to solve was incorrect. game over!
         elif len(guess) > 4 and guess != target_lower:
+            # add the failed solve to game.history
+            history = (
+                "(\
+                'guess': %s, \
+                'result': 'Your attempt to solve was unsuccessful! Game over! \
+                 The correct word is: %s', \
+                'remaining': %d \
+                )"
+            ) % (guess, target_word, game.attempts_remaining)
+            game.game_history.append(history)
             # log the incorrect guess
             game.incorrect_letters = guess
             # set game.game_over = True and game.won = False

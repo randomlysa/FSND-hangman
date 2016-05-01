@@ -34,7 +34,8 @@ After any guess, the following information is returned:
   * message: a message about the game or about the last guess,
   * target_revealed: the target word with correctly guessed letters filled in and underscores for missing letters,
   * urlsafe_key - the urlsafe game key,
-  * user_name.
+  * user_name,
+  * won: if the game has been won. Default is False.
 
 Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter

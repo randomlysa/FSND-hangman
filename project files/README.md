@@ -58,7 +58,8 @@ given time. Each game can be retrieved or played by using the path parameter
   Therefore, a game with no incorrect guesses would net a score of '100', and a game of no correct guesses
   would net a score of '0.'
 
-  UserRank is calculated by the number of games played / number of games won.
+  UserRank is calculated by the number of games played / number of games won * (percentage of games complete if completion rate is < 90%).
+  Completion rate is calculated by: the number of games finished / (number of games finished + number of game cancelled.)
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.

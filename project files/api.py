@@ -127,6 +127,8 @@ class HangmanApi(remote.Service):
     def cancel_game(self, request):
         """Cancel a non-completed game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        # user is needed for updating user rank
+        user = game.key.parent().get().key
 
         if game.game_over is not True and game.cancelled is not True:
             game.cancelled = True
@@ -135,6 +137,11 @@ class HangmanApi(remote.Service):
                 'result': 'Game Cancelled', \
                 'remaining': %d)" % game.attempts_remaining)
             game.put()
+
+            # update user's rank - might be affected if % of cancelled games
+            # goes over 10% ---
+            difficulty = game.convert_int_to_difficulty(game.attempts_allowed)
+            UserRank.set_user_rank(user, difficulty)
             return StringMessage(message="Game cancelled.")
         elif game.game_over is True:
             raise endpoints.BadRequestException(
@@ -161,6 +168,7 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         user = User.query(User.key == game.user).get()
         user_urlsafe = user.key.urlsafe()
+        """
         # convert attempts_allowed to a difficulty level
         int_difficulty = game.attempts_allowed
         if int_difficulty == 6:
@@ -169,9 +177,10 @@ class HangmanApi(remote.Service):
             set_difficulty = 'medium'
         elif int_difficulty == 12:
             set_difficulty = 'easy'
+        """
 
         # needed for UserRank.set_user_rank
-        difficulty = set_difficulty
+        difficulty = game.convert_int_to_difficulty(game.attempts_allowed)
 
         if game.game_over:
             return game.to_form('Game already over!')

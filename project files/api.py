@@ -5,9 +5,7 @@ primarily with communication to/from the API's users."""
 
 
 import textwrap
-import logging
 import endpoints
-from datetime import date
 from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
@@ -384,7 +382,6 @@ class HangmanApi(remote.Service):
     def get_user_scores(self, request):
         """Returns all of an individual User's scores"""
         user = User.query(User.name == request.user_name).get()
-        logging.info(request.user_name)
         if not user:
             raise endpoints.NotFoundException(
                 'A User with that name does not exist!')
@@ -411,7 +408,6 @@ class HangmanApi(remote.Service):
         user_rank = \
             UserRank.query()\
             .order(UserRank.difficulty, -UserRank.performance)
-        logging.info(user_rank)
         return UserRankForms(rankings=[rank.to_form() for rank in user_rank])
 
     @endpoints.method(response_message=StringMessage,

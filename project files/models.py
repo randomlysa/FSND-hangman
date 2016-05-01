@@ -1,7 +1,6 @@
 """models.py - This file contains the class definitions for the Datastore
 entities used by the game Hangman."""
 
-import logging
 import random
 from datetime import date
 from protorpc import messages
@@ -240,11 +239,6 @@ class UserRank(ndb.Model):
             # cancelled
             percent_finished = 0
             win_percentage = 0
-
-        # logging.info(games_this_difficulty_level)
-        # logging.info(games_cancelled)
-        # logging.info(games_won)
-        # logging.info(percent_finished)
 
         # a user must keep his percent_finished above 90%. otherwise, his Rank
         # is multiplied by the percent of games he has finished

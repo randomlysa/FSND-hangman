@@ -51,7 +51,7 @@ given time. Each game can be retrieved or played by using the path parameter
   A game is played until:
   * you reveal the target word by correctly guessing all the missing letters,
   * you solve the puzzle by guessing the correct word,
-  * you have incorrectly guessed enough timesfor the game to be over (6, 9, or 12 times, depending on difficulty level) , 
+  * you have incorrectly guessed enough timesfor the game to be over (6, 9, or 12 times, depending on difficulty level),
   * or you attempt to solve the puzzle but are incorrect.
 
   Per-game high score is calculated by the number of correct guesses / number of total guesses.
